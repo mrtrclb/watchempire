@@ -14637,17 +14637,6 @@ function initOnlinePresence() {
 
     const db = firebase.database();
 
-    // Eski birikmiş presence kayıtlarını temizle (5 dakikadan eski)
-    db.ref('watchempire_online').once('value', snap => {
-      const cutoff = Date.now() - 5 * 60 * 1000;
-      snap.forEach(child => {
-        const data = child.val();
-        if (!data || !data.t || data.t < cutoff) {
-          child.ref.remove();
-        }
-      });
-    });
-
     // Bağlantı durumunu izle
     db.ref('.info/connected').on('value', snap => {
       if (!snap.val()) {
@@ -14655,7 +14644,7 @@ function initOnlinePresence() {
         return;
       }
       console.log('Firebase: bağlandı, presence kaydediliyor');
-      if (_presenceRef) _presenceRef.remove();
+      if (_presenceRef) { _presenceRef.onDisconnect().cancel(); _presenceRef.remove(); }
       _presenceRef = db.ref('watchempire_online').push();
       _presenceRef.set({ t: Date.now() });
       _presenceRef.onDisconnect().remove();
@@ -16193,7 +16182,7 @@ setLang(Game.lang);
 showIOSBanner();
 initOfflineAudio();
 // Firebase hazır olunca presence başlat
-setTimeout(initOnlinePresence, 1500);
+setTimeout(initOnlinePresence, 3000);
 // Arkadaş ligi varsa bağlan
 setTimeout(initLeagueOnLoad, 2000);
 // Kaydedilmiş logo/font varsa güncelle
