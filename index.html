@@ -3262,10 +3262,10 @@
     </div>
 
     <!-- TradeGame linki -->
-    <a href="https://trade001.netlify.app" target="_blank" style="display:flex;align-items:center;justify-content:space-between;background:#1a1208;border:1px solid var(--border-gold);padding:10px 14px;margin-bottom:12px;text-decoration:none;transition:background 0.15s;" onmouseover="this.style.background='#2a1e08'" onmouseout="this.style.background='#1a1208'">
+    <a href="https://tradegame.net" target="_blank" style="display:flex;align-items:center;justify-content:space-between;background:#1a1208;border:1px solid var(--border-gold);padding:10px 14px;margin-bottom:12px;text-decoration:none;transition:background 0.15s;" onmouseover="this.style.background='#2a1e08'" onmouseout="this.style.background='#1a1208'">
       <div>
         <div style="font-size:12px;font-weight:700;color:var(--gold);" data-tr="🎮 TradeGame'i denediniz mi?" data-en="🎮 Have you tried TradeGame?">🎮 TradeGame'i denediniz mi?</div>
-        <div style="font-size:10px;color:var(--slate);margin-top:2px;" data-tr="Borsa ve yatırım simülasyonu — trade001.netlify.app" data-en="Stock & investment simulation — trade001.netlify.app">Borsa ve yatırım simülasyonu — trade001.netlify.app</div>
+        <div style="font-size:10px;color:var(--slate);margin-top:2px;" data-tr="Borsa ve yatırım simülasyonu — tradegame.net" data-en="Stock & investment simulation — tradegame.net">Borsa ve yatırım simülasyonu — tradegame.net</div>
       </div>
       <div style="font-size:16px;color:var(--gold);">→</div>
     </a>
@@ -14617,6 +14617,17 @@ function initOnlinePresence() {
     }
 
     const db = firebase.database();
+
+    // Eski birikmiş presence kayıtlarını temizle (5 dakikadan eski)
+    db.ref('watchempire_online').once('value', snap => {
+      const cutoff = Date.now() - 5 * 60 * 1000;
+      snap.forEach(child => {
+        const data = child.val();
+        if (!data || !data.t || data.t < cutoff) {
+          child.ref.remove();
+        }
+      });
+    });
 
     // Bağlantı durumunu izle
     db.ref('.info/connected').on('value', snap => {
