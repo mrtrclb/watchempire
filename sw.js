@@ -1,4 +1,4 @@
-const CACHE = 'watch-empire-v58';
+const CACHE = 'watch-empire-v59';
 const ASSETS = ['/','/index.html','/ambient.mp3','/ambient-2.mp3','/ambient-3.mp3','https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap'];
 self.addEventListener('install', e => { e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)).then(() => self.skipWaiting())); });
 self.addEventListener('activate', e => { e.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)))).then(() => self.clients.claim())); });
