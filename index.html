@@ -6081,7 +6081,9 @@ function subscribeLeague(code) {
       const msg = snap.val();
       if (!msg) return;
       const isTR = (Game.lang || 'tr') === 'tr';
-      const text = isTR ? msg.tr : msg.en;
+      const template = LEAGUE_MESSAGES[msg.msgIndex];
+      if (!template) { snap.ref.remove(); return; }
+      const text = isTR ? template.tr : template.en;
       showCustomAlert('\u{1F4AC} ' + msg.from + ':\n\n\u0022' + text + '\u0022');
       // Mesajı sil — bir kere görülsün
       snap.ref.remove();
@@ -6263,8 +6265,7 @@ async function sendLeagueMessage(targetName, senderName, code, msgIndex, e) {
     const msgData = {
       from: senderName,
       to: targetName,
-      tr: msg.tr,
-      en: msg.en,
+      msgIndex: msgIndex,
       t: Date.now()
     };
     await db.ref('watchempire_leagues/' + code + '/messages/' + targetName).set(msgData);
@@ -6291,7 +6292,9 @@ async function checkIncomingLeagueMessage() {
     const msg = snap.val();
     if (!msg) return;
     const isTR = (Game.lang || 'tr') === 'tr';
-    const text = isTR ? msg.tr : msg.en;
+    const template = LEAGUE_MESSAGES[msg.msgIndex];
+    if (!template) return;
+    const text = isTR ? template.tr : template.en;
     // Mesajı göster
     showCustomAlert(`💬 ${msg.from}:\n\n"${text}"`);
     // Mesajı sil — bir kere görülsün
