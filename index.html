@@ -13127,8 +13127,8 @@ function openReviewScreen(model) {
   }
 
   const _revLogo = (window.LOGOS && Game.logoIndex !== undefined) ? (LOGOS[Game.logoIndex]?.svg || '') : '';
-  const _revLogoSmall = _revLogo.replace(/width="56"/g,'width="22"').replace(/height="56"/g,'height="22"');
-  document.getElementById('revModel').innerHTML = `<span style="display:inline-flex;align-items:center;gap:6px;"><span style="display:inline-flex;vertical-align:middle;flex-shrink:0;">${_revLogoSmall}</span>${Game.brand} — ${model.name}</span>`;
+  const _revLogoSmall = _revLogo ? _revLogo.replace('<svg ', '<svg style="width:22px;height:22px;display:inline-block;vertical-align:middle;flex-shrink:0;" ') : '';
+  document.getElementById('revModel').innerHTML = `<span style="display:inline-flex;align-items:center;gap:6px;">${_revLogoSmall}${Game.brand} — ${model.name}</span>`;
   document.getElementById('revCat').textContent = cat.icon + ' ' + catName;
 
   // Puan hesapla — qualityScore + kategori bonusu
@@ -15511,10 +15511,9 @@ function renderOfficePanel() {
   const totalDays = absDay;
   const b = Game.staffBonuses || calcStaffBonuses();
 
-  // Logo SVG — 40px boyutunda göster
-  const logoSVG = (window.LOGOS && Game.logoIndex !== undefined)
-    ? (LOGOS[Game.logoIndex]?.svg || '').replace(/width="56"/g,'width="40"').replace(/height="56"/g,'height="40"')
-    : '';
+  // Logo SVG — CSS ile 40px'e zorla
+  const _rawLogoSVG = (window.LOGOS && Game.logoIndex !== undefined) ? (LOGOS[Game.logoIndex]?.svg || '') : '';
+  const logoSVG = _rawLogoSVG ? _rawLogoSVG.replace('<svg ', '<svg style="width:40px;height:40px;display:block;" ') : '';
 
   const groups = [
     { key:'engineer',   label: isTR?'Üretim Ekibi — Mühendisler':'Production — Engineers' },
