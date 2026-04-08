@@ -4601,6 +4601,9 @@
 <div class="modal-overlay" id="productionModal" onclick="closeProdModalOutside(event)">
   <div class="production-modal">
     <div class="modal-handle"></div>
+    <div id="prodWatchImg" style="width:100%;height:140px;overflow:hidden;border-radius:4px;margin-bottom:10px;background:#1a1714;display:none;">
+      <img id="prodWatchImgEl" alt="" style="width:100%;height:100%;object-fit:cover;object-position:center;display:block;">
+    </div>
     <div class="modal-title" id="prodModalTitle" data-tr="Üretim Başlat" data-en="Start Production">Üretim Başlat</div>
 
     <div class="prod-summary" id="prodSummary"></div>
@@ -4660,6 +4663,9 @@
 
     <!-- Sabit üst başlık -->
     <div style="background:#1a1714;border-bottom:1px solid rgba(196,151,58,0.3);padding:14px 16px;position:sticky;top:0;z-index:2;">
+      <div id="revWatchImg" style="width:100%;height:160px;overflow:hidden;border-radius:4px;margin-bottom:10px;background:#1a1714;display:none;">
+        <img id="revWatchImgEl" alt="" style="width:100%;height:100%;object-fit:cover;object-position:center;display:block;">
+      </div>
       <div style="font-family:'SF Mono',Consolas,monospace;font-size:9px;letter-spacing:0.2em;color:var(--gold);margin-bottom:6px;text-transform:uppercase;" data-tr="Değerlendirme Sonucu" data-en="Review Result">Değerlendirme Sonucu</div>
       <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;">
         <div style="flex:1;min-width:0;">
@@ -6714,8 +6720,27 @@ function renderModels() {
     const card = document.createElement('div');
     card.className = 'model-card' + (['ended','paused','archived'].includes(m.status) ? ' inactive' : '') + (m.status === 'review' ? ' pending-setup' : '');
     card.dataset.modelId = m.id;  // Badge güncellemesi için ID referansı
+    const _cardImgPool = {
+      mechanical:  Array.from({length:10},(_,i)=>'/assets/watches/mechanical-'+String(i+1).padStart(2,'0')+'.webp'),
+      automatic:   Array.from({length:10},(_,i)=>'/assets/watches/automatic-'+String(i+1).padStart(2,'0')+'.webp'),
+      quartz:      Array.from({length:10},(_,i)=>'/assets/watches/quartz-'+String(i+1).padStart(2,'0')+'.webp'),
+      smart:       Array.from({length:10},(_,i)=>'/assets/watches/smart-'+String(i+1).padStart(2,'0')+'.webp'),
+      sport:       Array.from({length:10},(_,i)=>'/assets/watches/sport-'+String(i+1).padStart(2,'0')+'.webp'),
+      luxury:      Array.from({length:10},(_,i)=>'/assets/watches/luxury-'+String(i+1).padStart(2,'0')+'.webp'),
+      superluxury: Array.from({length:10},(_,i)=>'/assets/watches/superluxury-'+String(i+1).padStart(2,'0')+'.webp'),
+      economy:     Array.from({length:10},(_,i)=>'/assets/watches/economy-'+String(i+1).padStart(2,'0')+'.webp'),
+    };
+    const _cPool = _cardImgPool[m.category] || _cardImgPool.mechanical;
+    const _cIdx = m.watchImageIndex !== undefined ? m.watchImageIndex % _cPool.length : 0;
+    const _cImg = _cPool[_cIdx];
     card.innerHTML = `
       <div class="model-card-inner">
+        <!-- Watch thumbnail -->
+        <div style="width:100%;height:100px;overflow:hidden;background:#0f0d0b;flex-shrink:0;">
+          <img src="${_cImg}" alt="${m.name}" loading="lazy"
+            style="width:100%;height:100%;object-fit:cover;object-position:center;"
+            onerror="this.parentElement.innerHTML='<div style=\'width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:32px;\'>${cat.icon}</div>'">
+        </div>
         <div class="model-card-body" style="padding:10px 12px;">
 
           <!-- Başlık satırı: model adı + durum -->
@@ -8006,11 +8031,26 @@ function renderDepo() {
     </div>`;
     return;
   }
+  const _depoImgPool = {
+    mechanical:  Array.from({length:10},(_,i)=>'/assets/watches/mechanical-'+String(i+1).padStart(2,'0')+'.webp'),
+    automatic:   Array.from({length:10},(_,i)=>'/assets/watches/automatic-'+String(i+1).padStart(2,'0')+'.webp'),
+    quartz:      Array.from({length:10},(_,i)=>'/assets/watches/quartz-'+String(i+1).padStart(2,'0')+'.webp'),
+    smart:       Array.from({length:10},(_,i)=>'/assets/watches/smart-'+String(i+1).padStart(2,'0')+'.webp'),
+    sport:       Array.from({length:10},(_,i)=>'/assets/watches/sport-'+String(i+1).padStart(2,'0')+'.webp'),
+    luxury:      Array.from({length:10},(_,i)=>'/assets/watches/luxury-'+String(i+1).padStart(2,'0')+'.webp'),
+    superluxury: Array.from({length:10},(_,i)=>'/assets/watches/superluxury-'+String(i+1).padStart(2,'0')+'.webp'),
+    economy:     Array.from({length:10},(_,i)=>'/assets/watches/economy-'+String(i+1).padStart(2,'0')+'.webp'),
+  };
   el.innerHTML = archived.map(m => {
     const cat = CATEGORIES[m.category] || CATEGORIES.mechanical;
     const earned = m.totalEarned ? '$' + formatNum(m.totalEarned) : '—';
+    const _dPool = _depoImgPool[m.category] || _depoImgPool.mechanical;
+    const _dIdx = m.watchImageIndex !== undefined ? m.watchImageIndex % _dPool.length : 0;
+    const _dImg = _dPool[_dIdx];
     return `<div style="background:#1a1714;border:1px solid rgba(240,235,227,0.12);padding:10px 12px;margin-bottom:6px;display:flex;align-items:center;gap:10px;">
-      <div style="font-size:20px;flex-shrink:0;">${cat.icon}</div>
+      <div style="width:44px;height:44px;border-radius:4px;overflow:hidden;flex-shrink:0;background:#0f0d0b;">
+        <img src="${_dImg}" alt="${m.name}" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentElement.innerHTML='<span style=\'font-size:20px;display:flex;height:100%;align-items:center;justify-content:center;\'>${cat.icon}</span>'">
+      </div>
       <div style="flex:1;min-width:0;">
         <div style="font-size:13px;font-weight:600;color:#f0ebe3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${m.name}</div>
         <div style="font-size:10px;color:rgba(240,235,227,0.45);font-family:'SF Mono',Consolas,monospace;margin-top:1px;">${Game.lang==='tr'?cat.tr:cat.en} · ${m.rating>0?m.rating.toFixed(1)+'/5':'—'} · ${(m.sales||0).toLocaleString()} ${Game.lang==='tr'?'satış':'sales'}</div>
@@ -11255,6 +11295,29 @@ function openProductionModal(modelId) {
   const p = RndParams[modelId] || getDefaultRndParams();
   const unitCost = model.unitCost || 100;
 
+  // Watch image
+  const _prodImgPool = {
+    mechanical:  Array.from({length:10},(_,i)=>'/assets/watches/mechanical-'+String(i+1).padStart(2,'0')+'.webp'),
+    automatic:   Array.from({length:10},(_,i)=>'/assets/watches/automatic-'+String(i+1).padStart(2,'0')+'.webp'),
+    quartz:      Array.from({length:10},(_,i)=>'/assets/watches/quartz-'+String(i+1).padStart(2,'0')+'.webp'),
+    smart:       Array.from({length:10},(_,i)=>'/assets/watches/smart-'+String(i+1).padStart(2,'0')+'.webp'),
+    sport:       Array.from({length:10},(_,i)=>'/assets/watches/sport-'+String(i+1).padStart(2,'0')+'.webp'),
+    luxury:      Array.from({length:10},(_,i)=>'/assets/watches/luxury-'+String(i+1).padStart(2,'0')+'.webp'),
+    superluxury: Array.from({length:10},(_,i)=>'/assets/watches/superluxury-'+String(i+1).padStart(2,'0')+'.webp'),
+    economy:     Array.from({length:10},(_,i)=>'/assets/watches/economy-'+String(i+1).padStart(2,'0')+'.webp'),
+  };
+  const _prodPool = _prodImgPool[model.category] || _prodImgPool.mechanical;
+  const _prodIdx = model.watchImageIndex !== undefined ? model.watchImageIndex % _prodPool.length : 0;
+  const _prodImgWrap = document.getElementById('prodWatchImg');
+  const _prodImgEl = document.getElementById('prodWatchImgEl');
+  if (_prodImgWrap && _prodImgEl) {
+    _prodImgEl.src = _prodPool[_prodIdx];
+    _prodImgEl.alt = model.name;
+    _prodImgEl.onerror = () => { _prodImgWrap.style.display = 'none'; };
+    _prodImgEl.onload = () => { _prodImgWrap.style.display = 'block'; };
+    _prodImgWrap.style.display = 'block';
+  }
+
   document.getElementById('prodModalTitle').textContent =
     `${cat.icon} ${model.name} — ${Game.lang==='tr'?'Üretim Başlat':'Start Production'}`;
 
@@ -11580,32 +11643,152 @@ function showModelInfo(modelId) {
   }
   gridContent += '</div>';
 
-  const html = `
-    <div style="padding:2px 0 6px;">
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
-        <div style="font-family:Georgia,serif;font-size:16px;font-weight:700;color:var(--ink);">${model.name}</div>
-        <div style="font-size:10px;color:var(--slate);background:rgba(240,235,227,0.06);padding:2px 7px;border-radius:2px;">${cat.icon} ${catName}</div>
-      </div>
-      ${gridContent}
-      ${comps.length > 0 ? `
-      <div style="font-family:'SF Mono',Consolas,monospace;font-size:8px;letter-spacing:0.14em;color:var(--gold);padding:10px 0 5px;border-top:1px solid rgba(196,151,58,0.15);margin-top:2px;">${isTR?'KOMPLİKASYONLAR':'COMPLICATIONS'}</div>
-      <div style="display:flex;flex-wrap:wrap;gap:3px;">${compHtml}</div>` : ''}
-    </div>`;
+  // Kategori bazlı watch image havuzu (görseller gelince doldurulacak)
+  const WATCH_IMAGES = {
+    mechanical:  Array.from({length:10},(_,i)=>`/assets/watches/mechanical-${String(i+1).padStart(2,'0')}.webp`),
+    automatic:   Array.from({length:10},(_,i)=>`/assets/watches/automatic-${String(i+1).padStart(2,'0')}.webp`),
+    quartz:      Array.from({length:10},(_,i)=>`/assets/watches/quartz-${String(i+1).padStart(2,'0')}.webp`),
+    smart:       Array.from({length:10},(_,i)=>`/assets/watches/smart-${String(i+1).padStart(2,'0')}.webp`),
+    sport:       Array.from({length:10},(_,i)=>`/assets/watches/sport-${String(i+1).padStart(2,'0')}.webp`),
+    luxury:      Array.from({length:10},(_,i)=>`/assets/watches/luxury-${String(i+1).padStart(2,'0')}.webp`),
+    superluxury: Array.from({length:10},(_,i)=>`/assets/watches/superluxury-${String(i+1).padStart(2,'0')}.webp`),
+    economy:     Array.from({length:10},(_,i)=>`/assets/watches/economy-${String(i+1).padStart(2,'0')}.webp`),
+  };
+
+  // Modele atanmış watchImageIndex ile görsel getir
+  function getWatchImage(model) {
+    const pool = WATCH_IMAGES[model.category] || WATCH_IMAGES.mechanical;
+    const idx = model.watchImageIndex !== undefined ? model.watchImageIndex : 0;
+    return pool[idx % pool.length];
+  }
+
+  const watchImg = getWatchImage(model);
+  const qualScore = model.qualityScore || 0;
+  const qualPct = qualScore;
+  const ratingVal = model.rating > 0 ? model.rating.toFixed(1) : '—';
+  const totalSales = model.totalSold || 0;
+
+  // Design chips
+  function chip(val) {
+    if (!val) return '';
+    const v = val.split(':')[0];
+    if (!v) return '';
+    return `<span style="display:inline-block;background:rgba(240,235,227,0.07);border:1px solid rgba(240,235,227,0.12);color:var(--ink-light);font-size:10px;padding:3px 8px;border-radius:2px;margin:2px 2px 2px 0;">${v}</span>`;
+  }
+
+  const designChips = [
+    p.case_size ? chip(p.case_size) : '',
+    chip(th('case_shape')), chip(th('case_mat')), chip(th('crystal')),
+    chip(th('strap')), chip(th('dial_color')), chip(th('dial_texture')), chip(th('caseback')),
+  ].join('');
+
+  const techChips = [
+    chip(th('movement_src')), chip(th('rotor')),
+    p.vph ? chip(p.vph+' vph') : '',
+    p.power_hrs ? chip(p.power_hrs) : '',
+    p.water_resist ? chip(p.water_resist) : '',
+    chip(th('shock')), chip(th('chipset')), chip(th('display')),
+    chip(th('battery')), chip(th('sensors')),
+  ].filter(Boolean).join('');
+
+  const prodChips = [
+    chip(th('production')), chip(th('supply')), chip(th('calib')),
+    chip(th('pkg')), chip(th('warranty')), chip(th('market_pos')),
+  ].filter(Boolean).join('');
 
   const existing = document.getElementById('modelInfoModal');
   if (existing) existing.remove();
 
   const overlay = document.createElement('div');
   overlay.id = 'modelInfoModal';
-  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:9000;display:flex;align-items:flex-end;justify-content:center;';
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.82);z-index:9000;display:flex;align-items:flex-end;justify-content:center;';
   overlay.onclick = e => { if (e.target === overlay) overlay.remove(); };
   overlay.innerHTML = `
-    <div style="background:var(--warm-white);border:1px solid var(--border-gold);border-bottom:none;width:100%;max-width:520px;max-height:75vh;overflow-y:auto;padding:14px 16px;border-radius:6px 6px 0 0;-webkit-overflow-scrolling:touch;">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-        <div style="font-family:'SF Mono',Consolas,monospace;font-size:9px;letter-spacing:0.15em;color:var(--slate);">${isTR?'MODEL DETAYI':'MODEL DETAIL'}</div>
-        <button onclick="document.getElementById('modelInfoModal').remove()" style="background:transparent;border:1px solid var(--border);color:var(--slate);padding:3px 10px;cursor:pointer;font-size:11px;">${isTR?'Kapat':'Close'}</button>
+    <div style="background:#0f0d0b;border:1px solid var(--border-gold);border-bottom:none;width:100%;max-width:520px;max-height:88vh;overflow-y:auto;border-radius:12px 12px 0 0;-webkit-overflow-scrolling:touch;">
+
+      <!-- Hero görsel -->
+      <div style="position:relative;width:100%;height:200px;overflow:hidden;border-radius:12px 12px 0 0;background:#1a1714;">
+        <img src="${watchImg}" alt="${model.name}"
+          style="width:100%;height:100%;object-fit:cover;object-position:center;"
+          onerror="this.parentElement.style.display='flex';this.parentElement.style.alignItems='center';this.parentElement.style.justifyContent='center';this.style.display='none';this.parentElement.innerHTML+='<span style=\'font-size:48px;\'>${cat.icon}</span>'">
+        <!-- Gradient overlay -->
+        <div style="position:absolute;bottom:0;left:0;right:0;height:80px;background:linear-gradient(transparent,#0f0d0b);"></div>
+        <!-- Kapat butonu -->
+        <button onclick="document.getElementById('modelInfoModal').remove()"
+          style="position:absolute;top:12px;right:12px;background:rgba(0,0,0,0.6);border:1px solid rgba(255,255,255,0.15);color:var(--ink-light);width:28px;height:28px;border-radius:50%;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;line-height:1;">✕</button>
       </div>
-      ${html}
+
+      <!-- İçerik -->
+      <div style="padding:16px;">
+
+        <!-- Başlık satırı -->
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px;">
+          <div style="font-family:Georgia,serif;font-size:20px;font-weight:700;color:var(--ink);line-height:1.2;">${model.name}</div>
+          <div style="text-align:right;flex-shrink:0;margin-left:12px;">
+            <div style="font-family:'SF Mono',Consolas,monospace;font-size:18px;font-weight:700;color:var(--gold);">$${(model.sellPrice||0).toLocaleString()}</div>
+            <div style="font-size:9px;color:var(--slate);">${isTR?'satış fiyatı':'sale price'}</div>
+          </div>
+        </div>
+
+        <!-- Kategori + rating -->
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;">
+          <span style="font-size:10px;color:var(--slate);background:rgba(240,235,227,0.06);border:1px solid var(--border);padding:2px 8px;border-radius:20px;">${cat.icon} ${catName}</span>
+          ${ratingVal !== '—' ? `<span style="font-size:11px;color:var(--gold);">★ ${ratingVal}</span>` : ''}
+          ${totalSales > 0 ? `<span style="font-size:10px;color:var(--slate);">${totalSales.toLocaleString()} ${isTR?'satış':'sold'}</span>` : ''}
+        </div>
+
+        <!-- Kalite bar -->
+        <div style="margin-bottom:14px;">
+          <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+            <span style="font-size:10px;color:var(--slate);">${isTR?'Kalite Skoru':'Quality Score'}</span>
+            <span style="font-family:'SF Mono',Consolas,monospace;font-size:11px;color:${qualScore>=80?'#5aad6a':qualScore>=50?'var(--gold)':'var(--rust)'};">${qualScore}/100</span>
+          </div>
+          <div style="height:4px;background:rgba(240,235,227,0.08);border-radius:2px;overflow:hidden;">
+            <div style="height:100%;width:${qualPct}%;background:${qualScore>=80?'#5aad6a':qualScore>=50?'var(--gold)':'var(--rust)'};border-radius:2px;transition:width 0.4s;"></div>
+          </div>
+        </div>
+
+        <!-- Maliyet / Marj -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px;">
+          <div style="background:rgba(240,235,227,0.04);border:1px solid rgba(240,235,227,0.08);border-radius:6px;padding:10px 12px;">
+            <div style="font-size:9px;color:var(--slate);margin-bottom:3px;">${isTR?'BİRİM MALİYET':'UNIT COST'}</div>
+            <div style="font-family:'SF Mono',Consolas,monospace;font-size:15px;color:var(--rust);">$${(model.unitCost||0).toLocaleString()}</div>
+          </div>
+          <div style="background:rgba(240,235,227,0.04);border:1px solid rgba(240,235,227,0.08);border-radius:6px;padding:10px 12px;">
+            <div style="font-size:9px;color:var(--slate);margin-bottom:3px;">${isTR?'KAR MARJI':'MARGIN'}</div>
+            <div style="font-family:'SF Mono',Consolas,monospace;font-size:15px;color:#5aad6a;">${model.unitCost && model.sellPrice ? Math.round((model.sellPrice-model.unitCost)/model.sellPrice*100)+'%' : '—'}</div>
+          </div>
+        </div>
+
+        <!-- Tasarım chips -->
+        ${designChips ? `
+        <div style="margin-bottom:14px;">
+          <div style="font-size:9px;color:var(--gold);letter-spacing:0.12em;margin-bottom:6px;">${isTR?'TASARIM':'DESIGN'}</div>
+          <div style="display:flex;flex-wrap:wrap;">${designChips}</div>
+        </div>` : ''}
+
+        <!-- Teknik chips -->
+        ${techChips ? `
+        <div style="margin-bottom:14px;">
+          <div style="font-size:9px;color:var(--gold);letter-spacing:0.12em;margin-bottom:6px;">${isTR?'TEKNİK':'TECHNICAL'}</div>
+          <div style="display:flex;flex-wrap:wrap;">${techChips}</div>
+        </div>` : ''}
+
+        <!-- Üretim & Pazar chips -->
+        ${prodChips ? `
+        <div style="margin-bottom:14px;">
+          <div style="font-size:9px;color:var(--gold);letter-spacing:0.12em;margin-bottom:6px;">${isTR?'ÜRETİM & PAZAR':'PRODUCTION & MARKET'}</div>
+          <div style="display:flex;flex-wrap:wrap;">${prodChips}</div>
+        </div>` : ''}
+
+        <!-- Komplikasyonlar -->
+        ${comps.length > 0 ? `
+        <div style="margin-bottom:8px;">
+          <div style="font-size:9px;color:var(--gold);letter-spacing:0.12em;margin-bottom:6px;">${isTR?'KOMPLİKASYONLAR':'COMPLICATIONS'}</div>
+          <div style="display:flex;flex-wrap:wrap;gap:4px;">${compHtml}</div>
+        </div>` : ''}
+
+      </div>
     </div>`;
   document.body.appendChild(overlay);
 }
@@ -12897,6 +13080,29 @@ function selectComment(model, reviewerFocus, isGood) {
 function openReviewScreen(model) {
   const cat = CATEGORIES[model.category] || CATEGORIES.mechanical;
   const catName = Game.lang === 'tr' ? cat.tr : cat.en;
+
+  // Watch image
+  const _revImgPool = {
+    mechanical:  Array.from({length:10},(_,i)=>'/assets/watches/mechanical-'+String(i+1).padStart(2,'0')+'.webp'),
+    automatic:   Array.from({length:10},(_,i)=>'/assets/watches/automatic-'+String(i+1).padStart(2,'0')+'.webp'),
+    quartz:      Array.from({length:10},(_,i)=>'/assets/watches/quartz-'+String(i+1).padStart(2,'0')+'.webp'),
+    smart:       Array.from({length:10},(_,i)=>'/assets/watches/smart-'+String(i+1).padStart(2,'0')+'.webp'),
+    sport:       Array.from({length:10},(_,i)=>'/assets/watches/sport-'+String(i+1).padStart(2,'0')+'.webp'),
+    luxury:      Array.from({length:10},(_,i)=>'/assets/watches/luxury-'+String(i+1).padStart(2,'0')+'.webp'),
+    superluxury: Array.from({length:10},(_,i)=>'/assets/watches/superluxury-'+String(i+1).padStart(2,'0')+'.webp'),
+    economy:     Array.from({length:10},(_,i)=>'/assets/watches/economy-'+String(i+1).padStart(2,'0')+'.webp'),
+  };
+  const _revPool = _revImgPool[model.category] || _revImgPool.mechanical;
+  const _revIdx = model.watchImageIndex !== undefined ? model.watchImageIndex % _revPool.length : 0;
+  const _revImgWrap = document.getElementById('revWatchImg');
+  const _revImgEl = document.getElementById('revWatchImgEl');
+  if (_revImgWrap && _revImgEl) {
+    _revImgEl.src = _revPool[_revIdx];
+    _revImgEl.alt = model.name;
+    _revImgEl.onerror = () => { _revImgWrap.style.display = 'none'; };
+    _revImgEl.onload = () => { _revImgWrap.style.display = 'block'; };
+    _revImgWrap.style.display = 'block';
+  }
 
   document.getElementById('revModel').textContent = `${Game.brand} — ${model.name}`;
   document.getElementById('revCat').textContent = cat.icon + ' ' + catName;
@@ -14314,6 +14520,16 @@ function confirmNewModel() {
   }
   if (!isCatUnlocked(Game.selectedCat)) return; // Kilitli kategori bypass koruması
   const newId = Date.now();
+  // Aynı kategoride kullanılmamış watchImageIndex seç
+  const usedIndexes = Game.models
+    .filter(m => m.category === Game.selectedCat && m.watchImageIndex !== undefined)
+    .map(m => m.watchImageIndex);
+  const poolSize = 10;
+  const available = Array.from({length: poolSize}, (_, i) => i).filter(i => !usedIndexes.includes(i));
+  const watchImageIndex = available.length > 0
+    ? available[Math.floor(Math.random() * available.length)]
+    : Math.floor(Math.random() * poolSize);
+
   Game.models.push({
     id: newId,
     name,
@@ -14327,6 +14543,7 @@ function confirmNewModel() {
     unitCost: 100,
     dailyCapacity: 100,
     dayStarted: Game.day,
+    watchImageIndex,
     stream: []
   });
   closeModal();
