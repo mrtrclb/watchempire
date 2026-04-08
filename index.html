@@ -3954,7 +3954,9 @@
 
     <!-- Tasarımcı Tut bölümü -->
     <div id="design-designer-section" style="display:none;">
-      <div id="designer-selected-card" style="display:none;background:#1a1714;border:1px solid var(--border-gold);padding:14px;margin-bottom:12px;">
+      <div id="designer-selected-card" style="display:none;background:#1a1714;border:1px solid var(--border-gold);overflow:hidden;margin-bottom:12px;">
+        <div id="ds-portrait" style="width:100%;height:110px;overflow:hidden;border-bottom:1px solid var(--border-gold);display:flex;align-items:center;justify-content:center;font-size:32px;background:#161310;"></div>
+        <div style="padding:12px 14px 14px 14px;">
         <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;">
           <div>
             <div style="font-size:14px;font-weight:700;color:var(--ink);" id="ds-name">—</div>
@@ -3970,6 +3972,7 @@
         <button onclick="clearDesigner()" style="margin-top:10px;width:100%;background:transparent;border:1px solid var(--border);color:var(--slate);padding:6px;font-size:11px;cursor:pointer;font-family:system-ui,sans-serif;">
           <span data-tr="Tasarımcıyı Değiştir" data-en="Change Designer">Tasarımcıyı Değiştir</span>
         </button>
+        </div>
       </div>
 
       <div id="designer-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;"></div>
@@ -8394,21 +8397,21 @@ function selectRndModel(modelId, btn) {
 // ══════════════════════════════════════════
 
 const DESIGNERS = [
-  { id:'d01', name:'Hiroshi Tanaka',    type_tr:'Saat Ustası', type_en:'Watchmaker',              flag:'🇯🇵', fee:8,  speciality:['mechanical','automatic'],           bonuses:{ quality:18, rating:0.35, cost_mult:1.05 }, tags:['Hassasiyet','Mekanik','Japon estetiği'],  quote_tr:'Mükemmellik her vidalı ayrıntıda saklıdır.', quote_en:'Perfection is hidden in every threaded detail.',                    portrait:'⚙️'  },
-  { id:'d02', name:'Cléo Marchand',     type_tr:'Lüks Moda Tasarımcısı', type_en:'Luxury Fashion Designer',    flag:'🇫🇷', fee:12, speciality:['luxury','superluxury'],              bonuses:{ quality:10, rating:0.45, cost_mult:1.12 }, tags:['Haute couture','Lüks','Feminen'],         quote_tr:'Her saat satılmadan önce bir sanat eseridir.', quote_en:'Every watch is a work of art before it is sold.',                  portrait:'💎'  },
-  { id:'d03', name:'Marcus Webb',       type_tr:'Endüstriyel Tasarımcı', type_en:'Industrial Designer',    flag:'🇩🇪', fee:7,  speciality:['sport','economy','automatic'],       bonuses:{ quality:12, rating:0.20, cost_mult:0.97 }, tags:['Fonksiyonel','Dayanıklı','Bauhaus'],      quote_tr:'Form fonksiyonu takip eder — her zaman.', quote_en:'Form follows function — always.',                       portrait:'📐'  },
-  { id:'d04', name:'Zeynep Arslan',     type_tr:'Yerel Usta', type_en:'Local Master',               flag:'🇹🇷', fee:4,  speciality:['mechanical','quartz','economy'],     bonuses:{ quality:8,  rating:0.15, cost_mult:0.93 }, tags_tr:['Uygun fiyat','Yerel','Geleneksel'], tags_en:['Affordable','Local','Traditional'],       quote_tr:'Her saat bir hikaye, her kasa bir yuva.', quote_en:'Every watch a story, every case a home.',                       portrait:'🌙'  },
-  { id:'d05', name:'Alex Park',         type_tr:'Sosyal Medya Fenomeni', type_en:'Social Media Influencer',    flag:'🇰🇷', fee:15, speciality:['smart','sport','quartz'],            bonuses:{ quality:5,  rating:0.55, cost_mult:1.08 }, tags:['Viral','Gen Z','Streetwear'],             quote_tr:'Saat takmayanlar bile bu modeli takacak.', quote_en:'Even non-watch-wearers will wear this model.',                      portrait:'📱'  },
-  { id:'d06', name:'Ivan Petrov',       type_tr:'Avant-Garde Sanatçı', type_en:'Avant-Garde Artist',      flag:'🇷🇺', fee:10, speciality:['luxury','mechanical','superluxury'], bonuses:{ quality:14, rating:0.40, cost_mult:1.10 }, tags:['Deneysel','Sanat','Koleksiyoncu'],        quote_tr:'Zaman bir illüzyon — tasarım ise gerçek.', quote_en:'Time is an illusion — design is reality.',                      portrait:'🎭'  },
-  { id:'d07', name:'Priya Sharma',      type_tr:'Pazarlama Dehası', type_en:'Marketing Genius',         flag:'🇮🇳', fee:11, speciality:['economy','quartz','sport'],          bonuses:{ quality:4,  rating:0.50, cost_mult:1.03 }, tags:['Pazar bilgisi','Kitlesel','Satış odaklı'],quote_tr:'İnsanlar ürün almaz, his satin alır.', quote_en:'People don\'t buy products, they buy feelings.',                          portrait:'📊'  },
-  { id:'d08', name:'Luca Ferretti',     type:'İtalyan Zanaatkarı',       flag:'🇮🇹', fee:9,  speciality:['luxury','mechanical','automatic'],   bonuses:{ quality:16, rating:0.30, cost_mult:1.08 }, tags_tr:['El yapımı','İtalyan','Lüks'], tags_en:['Handmade','Italian','Luxury'],             quote_tr:'Zarafet asla modası geçmez.', quote_en:'Elegance never goes out of style.',                                   portrait:'🏺'  },
-  { id:'d09', name:'Yuki Sato',         type_tr:'Minimalist Tasarımcı', type_en:'Minimalist Designer',     flag:'🇯🇵', fee:7,  speciality:['quartz','automatic','smart'],        bonuses:{ quality:10, rating:0.28, cost_mult:0.98 }, tags:['Minimalizm','Wabi-sabi','Temiz'],         quote_tr:'Gereksiz olanı çıkardığında gerçek güzellik kalır.', quote_en:'When you remove the unnecessary, true beauty remains.',            portrait:'⬜'  },
-  { id:'d10', name:'Carlos Mendez',     type_tr:'Spor Tasarımcısı', type_en:'Sports Designer',         flag:'🇲🇽', fee:6,  speciality:['sport','economy'],                  bonuses:{ quality:9,  rating:0.22, cost_mult:0.96 }, tags:['Spor','Dayanıklı','Aktif yaşam'],         quote_tr:'Her sporcunun bileğine yakışan bir saat var.', quote_en:'There is a watch worthy of every athlete\'s wrist.',                  portrait:'🏃'  },
-  { id:'d11', name:'Sofia Chen',        type_tr:'Tech Tasarımcısı', type_en:'Tech Designer',         flag:'🇨🇳', fee:9,  speciality:['smart','quartz'],                   bonuses:{ quality:14, rating:0.35, cost_mult:1.04 }, tags:['Teknoloji','UX','Smart'],                 quote_tr:'Akıllı cihazlar da güzel olabilir.', quote_en:'Smart devices can be beautiful too.',                            portrait:'💻'  },
-  { id:'d12', name:'Amara Osei',        type_tr:'Kültürel Miras Tasarımcısı', type_en:'Cultural Heritage Designer',flag:'🇬🇭',fee:8,  speciality:['luxury','mechanical'],              bonuses:{ quality:11, rating:0.38, cost_mult:1.06 }, tags:['Kültürel','Eşsiz','Hikaye'],             quote_tr:'Mirasımız en değerli tasarım ilhamıdır.', quote_en:'Our heritage is the most valuable design inspiration.',                       portrait:'🌍'  },
-  { id:'d13', name:'Felix Müller',      type_tr:'Sertifika Uzmanı', type_en:'Certification Expert',         flag:'🇨🇭', fee:13, speciality:['mechanical','automatic','luxury'],   bonuses:{ quality:20, rating:0.42, cost_mult:1.15 }, tags_tr:['İsviçre standardı','Sertifika','COSC'], tags_en:['Swiss Standard','Certified','COSC'],  quote_tr:'Bir saat ya COSC kalitesindedir ya da sadece saat.', quote_en:'A watch is either COSC quality, or it\'s just a timepiece.',            portrait:'🎖️' },
-  { id:'d14', name:'Mia Johansson',     type_tr:'Sürdürülebilir Tasarımcı', type_en:'Sustainable Designer', flag:'🇸🇪', fee:7,  speciality:['economy','quartz','sport'],          bonuses:{ quality:8,  rating:0.25, cost_mult:0.95 }, tags_tr:['Eko','Sürdürülebilir','Doğa'], tags_en:['Eco','Sustainable','Nature'],            quote_tr:'Gezegenimize zarar vermeden de güzel tasarlanabilir.', quote_en:'Beautiful design is possible without harming our planet.',          portrait:'🌿'  },
-  { id:'d15', name:'Rashid Al-Farsi',   type_tr:'Lüks Mücevher Tasarımcısı', type_en:'Luxury Jewellery Designer',flag:'🇦🇪', fee:18, speciality:['superluxury','luxury'],              bonuses:{ quality:15, rating:0.60, cost_mult:1.20 }, tags:['Ultra lüks','Mücevher','Özel sipariş'],  quote_tr:'Sınır bilmeyenler için tasarım yapıyorum.', quote_en:'I design for those who know no limits.',                     portrait:'👑'  },
+  { id:'d01', name:'Hiroshi Tanaka',    type_tr:'Saat Ustası', type_en:'Watchmaker',              flag:'🇯🇵', fee:8,  speciality:['mechanical','automatic'],           bonuses:{ quality:18, rating:0.35, cost_mult:1.05 }, tags:['Hassasiyet','Mekanik','Japon estetiği'],  quote_tr:'Mükemmellik her vidalı ayrıntıda saklıdır.', quote_en:'Perfection is hidden in every threaded detail.',                    portrait:'/assets/designers/hiroshi-tanaka.webp'  },
+  { id:'d02', name:'Cléo Marchand',     type_tr:'Lüks Moda Tasarımcısı', type_en:'Luxury Fashion Designer',    flag:'🇫🇷', fee:12, speciality:['luxury','superluxury'],              bonuses:{ quality:10, rating:0.45, cost_mult:1.12 }, tags:['Haute couture','Lüks','Feminen'],         quote_tr:'Her saat satılmadan önce bir sanat eseridir.', quote_en:'Every watch is a work of art before it is sold.',                  portrait:'/assets/designers/cleo-marchand.webp'  },
+  { id:'d03', name:'Marcus Webb',       type_tr:'Endüstriyel Tasarımcı', type_en:'Industrial Designer',    flag:'🇩🇪', fee:7,  speciality:['sport','economy','automatic'],       bonuses:{ quality:12, rating:0.20, cost_mult:0.97 }, tags:['Fonksiyonel','Dayanıklı','Bauhaus'],      quote_tr:'Form fonksiyonu takip eder — her zaman.', quote_en:'Form follows function — always.',                       portrait:'/assets/designers/marcus-webb.webp'  },
+  { id:'d04', name:'Zeynep Arslan',     type_tr:'Yerel Usta', type_en:'Local Master',               flag:'🇹🇷', fee:4,  speciality:['mechanical','quartz','economy'],     bonuses:{ quality:8,  rating:0.15, cost_mult:0.93 }, tags_tr:['Uygun fiyat','Yerel','Geleneksel'], tags_en:['Affordable','Local','Traditional'],       quote_tr:'Her saat bir hikaye, her kasa bir yuva.', quote_en:'Every watch a story, every case a home.',                       portrait:'/assets/designers/zeynep-arslan.webp'  },
+  { id:'d05', name:'Alex Park',         type_tr:'Sosyal Medya Fenomeni', type_en:'Social Media Influencer',    flag:'🇰🇷', fee:15, speciality:['smart','sport','quartz'],            bonuses:{ quality:5,  rating:0.55, cost_mult:1.08 }, tags:['Viral','Gen Z','Streetwear'],             quote_tr:'Saat takmayanlar bile bu modeli takacak.', quote_en:'Even non-watch-wearers will wear this model.',                      portrait:'/assets/designers/alex-park.webp'  },
+  { id:'d06', name:'Ivan Petrov',       type_tr:'Avant-Garde Sanatçı', type_en:'Avant-Garde Artist',      flag:'🇷🇺', fee:10, speciality:['luxury','mechanical','superluxury'], bonuses:{ quality:14, rating:0.40, cost_mult:1.10 }, tags:['Deneysel','Sanat','Koleksiyoncu'],        quote_tr:'Zaman bir illüzyon — tasarım ise gerçek.', quote_en:'Time is an illusion — design is reality.',                      portrait:'/assets/designers/ivan-petrov.webp'  },
+  { id:'d07', name:'Priya Sharma',      type_tr:'Pazarlama Dehası', type_en:'Marketing Genius',         flag:'🇮🇳', fee:11, speciality:['economy','quartz','sport'],          bonuses:{ quality:4,  rating:0.50, cost_mult:1.03 }, tags:['Pazar bilgisi','Kitlesel','Satış odaklı'],quote_tr:'İnsanlar ürün almaz, his satin alır.', quote_en:'People don\'t buy products, they buy feelings.',                          portrait:'/assets/designers/priya-sharma.webp'  },
+  { id:'d08', name:'Luca Ferretti',     type:'İtalyan Zanaatkarı',       flag:'🇮🇹', fee:9,  speciality:['luxury','mechanical','automatic'],   bonuses:{ quality:16, rating:0.30, cost_mult:1.08 }, tags_tr:['El yapımı','İtalyan','Lüks'], tags_en:['Handmade','Italian','Luxury'],             quote_tr:'Zarafet asla modası geçmez.', quote_en:'Elegance never goes out of style.',                                   portrait:'/assets/designers/luca-ferretti.webp'  },
+  { id:'d09', name:'Yuki Sato',         type_tr:'Minimalist Tasarımcı', type_en:'Minimalist Designer',     flag:'🇯🇵', fee:7,  speciality:['quartz','automatic','smart'],        bonuses:{ quality:10, rating:0.28, cost_mult:0.98 }, tags:['Minimalizm','Wabi-sabi','Temiz'],         quote_tr:'Gereksiz olanı çıkardığında gerçek güzellik kalır.', quote_en:'When you remove the unnecessary, true beauty remains.',            portrait:'/assets/designers/yuki-sato.webp'  },
+  { id:'d10', name:'Carlos Mendez',     type_tr:'Spor Tasarımcısı', type_en:'Sports Designer',         flag:'🇲🇽', fee:6,  speciality:['sport','economy'],                  bonuses:{ quality:9,  rating:0.22, cost_mult:0.96 }, tags:['Spor','Dayanıklı','Aktif yaşam'],         quote_tr:'Her sporcunun bileğine yakışan bir saat var.', quote_en:'There is a watch worthy of every athlete\'s wrist.',                  portrait:'/assets/designers/carlos-mendez.webp'  },
+  { id:'d11', name:'Sofia Chen',        type_tr:'Tech Tasarımcısı', type_en:'Tech Designer',         flag:'🇨🇳', fee:9,  speciality:['smart','quartz'],                   bonuses:{ quality:14, rating:0.35, cost_mult:1.04 }, tags:['Teknoloji','UX','Smart'],                 quote_tr:'Akıllı cihazlar da güzel olabilir.', quote_en:'Smart devices can be beautiful too.',                            portrait:'/assets/designers/sofia-chen.webp'  },
+  { id:'d12', name:'Amara Osei',        type_tr:'Kültürel Miras Tasarımcısı', type_en:'Cultural Heritage Designer',flag:'🇬🇭',fee:8,  speciality:['luxury','mechanical'],              bonuses:{ quality:11, rating:0.38, cost_mult:1.06 }, tags:['Kültürel','Eşsiz','Hikaye'],             quote_tr:'Mirasımız en değerli tasarım ilhamıdır.', quote_en:'Our heritage is the most valuable design inspiration.',                       portrait:'/assets/designers/amara-osei.webp'  },
+  { id:'d13', name:'Felix Müller',      type_tr:'Sertifika Uzmanı', type_en:'Certification Expert',         flag:'🇨🇭', fee:13, speciality:['mechanical','automatic','luxury'],   bonuses:{ quality:20, rating:0.42, cost_mult:1.15 }, tags_tr:['İsviçre standardı','Sertifika','COSC'], tags_en:['Swiss Standard','Certified','COSC'],  quote_tr:'Bir saat ya COSC kalitesindedir ya da sadece saat.', quote_en:'A watch is either COSC quality, or it\'s just a timepiece.',            portrait:'/assets/designers/felix-muller.webp' },
+  { id:'d14', name:'Mia Johansson',     type_tr:'Sürdürülebilir Tasarımcı', type_en:'Sustainable Designer', flag:'🇸🇪', fee:7,  speciality:['economy','quartz','sport'],          bonuses:{ quality:8,  rating:0.25, cost_mult:0.95 }, tags_tr:['Eko','Sürdürülebilir','Doğa'], tags_en:['Eco','Sustainable','Nature'],            quote_tr:'Gezegenimize zarar vermeden de güzel tasarlanabilir.', quote_en:'Beautiful design is possible without harming our planet.',          portrait:'/assets/designers/mia-johansson.webp'  },
+  { id:'d15', name:'Rashid Al-Farsi',   type_tr:'Lüks Mücevher Tasarımcısı', type_en:'Luxury Jewellery Designer',flag:'🇦🇪', fee:18, speciality:['superluxury','luxury'],              bonuses:{ quality:15, rating:0.60, cost_mult:1.20 }, tags:['Ultra lüks','Mücevher','Özel sipariş'],  quote_tr:'Sınır bilmeyenler için tasarım yapıyorum.', quote_en:'I design for those who know no limits.',                     portrait:'/assets/designers/rashid-al-farsi.webp'  },
 ];
 
 const ModelDesigners = {};
@@ -8445,7 +8448,15 @@ function renderDesignerGrid() {
     if (d) {
       selectedCard.style.display = '';
       grid.style.display = 'none';
-      document.getElementById('ds-name').textContent  = d.portrait + ' ' + d.name;
+      const dsPortraitEl = document.getElementById('ds-portrait');
+      if (dsPortraitEl) {
+        if (d.portrait.startsWith('/')) {
+          dsPortraitEl.innerHTML = '<img src="' + d.portrait + '" alt="' + d.name + '" style="width:100%;height:100%;object-fit:cover;object-position:center top;display:block;border-radius:2px;" onerror="this.parentElement.textContent=\'👤\'">';
+        } else {
+          dsPortraitEl.textContent = d.portrait;
+        }
+      }
+      document.getElementById('ds-name').textContent  = d.name;
       document.getElementById('ds-type').textContent  = d.flag + ' ' + (Game.lang==='tr'?(d.type_tr||d.type):(d.type_en||d.type));
       document.getElementById('ds-fee').textContent   = '%' + d.fee + (Game.lang==='tr'?' ek maliyet / ürün':' extra cost / unit');
       document.getElementById('ds-bonus').textContent = '+' + d.bonuses.quality + (Game.lang==='tr'?' kalite  ':' quality  +') + d.bonuses.rating.toFixed(2) + (Game.lang==='tr'?' puan':' rating');
@@ -8466,13 +8477,20 @@ function renderDesignerGrid() {
   grid.innerHTML = sorted.map(d => {
     const isFit = cat && d.speciality.includes(cat);
     const bc = isFit ? 'rgba(196,151,58,0.4)' : 'var(--border)';
-    return '<div onclick="selectDesigner(\'' + d.id + '\')" style="background:' + (isFit?'#1a1714':'#161310') + ';border:1px solid ' + bc + ';padding:12px;cursor:pointer;transition:all 0.15s;position:relative;" onmouseover="this.style.borderColor=\'var(--gold)\'" onmouseout="this.style.borderColor=\'' + bc + '\'">'
-      + (isFit ? '<div style="position:absolute;top:6px;right:6px;font-size:9px;color:var(--gold);font-family:monospace;">✦ uyumlu</div>' : '')
-      + '<div style="font-size:18px;margin-bottom:4px;">' + d.portrait + '</div>'
+    const portraitHtml = d.portrait.startsWith('/')
+      ? '<div style="width:100%;height:90px;overflow:hidden;margin-bottom:8px;border-bottom:1px solid ' + bc + ';">'
+        + '<img src="' + d.portrait + '" alt="' + d.name + '" loading="lazy" style="width:100%;height:100%;object-fit:cover;object-position:center top;display:block;" onerror="this.parentElement.innerHTML=\'<div style=&quot;width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:28px;background:var(--warm-white);&quot;>👤</div>\'">'
+        + '</div>'
+      : '<div style="font-size:18px;margin-bottom:8px;">' + d.portrait + '</div>';
+    return '<div onclick="selectDesigner(\'' + d.id + '\')" style="background:' + (isFit?'#1a1714':'#161310') + ';border:1px solid ' + bc + ';cursor:pointer;transition:all 0.15s;position:relative;overflow:hidden;" onmouseover="this.style.borderColor=\'var(--gold)\'" onmouseout="this.style.borderColor=\'' + bc + '\'">'
+      + (isFit ? '<div style="position:absolute;top:6px;right:6px;font-size:9px;color:var(--gold);font-family:monospace;z-index:1;background:rgba(21,18,16,0.8);padding:2px 4px;">✦ uyumlu</div>' : '')
+      + portraitHtml
+      + '<div style="padding:0 10px 10px 10px;">'
       + '<div style="font-size:12px;font-weight:700;color:var(--ink);margin-bottom:2px;">' + d.name + '</div>'
       + '<div style="font-size:9px;color:var(--slate);margin-bottom:6px;">' + d.flag + ' ' + (Game.lang==='tr'?(d.type_tr||d.type):(d.type_en||d.type)) + '</div>'
       + '<div style="font-size:10px;color:var(--rust);font-family:monospace;margin-bottom:4px;">% ' + d.fee + ' / ürün</div>'
       + '<div style="font-size:9px;color:var(--slate);">' + (Game.lang==='tr'?(d.tags_tr||d.tags||[]):(d.tags_en||d.tags||[])).slice(0,2).join(' · ') + '</div>'
+      + '</div>'
       + '</div>';
   }).join('');
 }

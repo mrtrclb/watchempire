@@ -1,5 +1,5 @@
-const CACHE = 'watch-empire-v59';
-const ASSETS = ['/','/index.html','/ambient.mp3','/ambient-2.mp3','/ambient-3.mp3','https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap'];
+const CACHE = 'watch-empire-v60';
+const ASSETS = ['/','/index.html','/ambient.mp3','/ambient-2.mp3','/ambient-3.mp3','/assets/designers/hiroshi-tanaka.webp','/assets/designers/cleo-marchand.webp','/assets/designers/marcus-webb.webp','/assets/designers/zeynep-arslan.webp','/assets/designers/alex-park.webp','/assets/designers/ivan-petrov.webp','/assets/designers/priya-sharma.webp','/assets/designers/luca-ferretti.webp','/assets/designers/yuki-sato.webp','/assets/designers/carlos-mendez.webp','/assets/designers/sofia-chen.webp','/assets/designers/amara-osei.webp','/assets/designers/felix-muller.webp','/assets/designers/mia-johansson.webp','/assets/designers/rashid-al-farsi.webp','https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap'];
 self.addEventListener('install', e => { e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)).then(() => self.skipWaiting())); });
 self.addEventListener('activate', e => { e.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)))).then(() => self.clients.claim())); });
 self.addEventListener('fetch', e => {
