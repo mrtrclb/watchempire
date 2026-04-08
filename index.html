@@ -4670,7 +4670,7 @@
       <div style="font-family:'SF Mono',Consolas,monospace;font-size:9px;letter-spacing:0.2em;color:var(--gold);margin-bottom:6px;text-transform:uppercase;" data-tr="Değerlendirme Sonucu" data-en="Review Result">Değerlendirme Sonucu</div>
       <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;">
         <div style="flex:1;min-width:0;">
-          <div style="font-family:Georgia,'Times New Roman',serif;font-size:18px;font-weight:700;color:#f0ebe3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" id="revModel">—</div>
+          <div style="font-family:Georgia,'Times New Roman',serif;font-size:18px;font-weight:700;color:#f0ebe3;display:flex;align-items:center;gap:6px;min-width:0;" id="revModel">—</div>
           <div style="font-size:11px;color:rgba(240,235,227,0.45);margin-top:2px;" id="revCat">—</div>
         </div>
         <div style="display:flex;align-items:center;gap:10px;flex-shrink:0;">
@@ -13126,7 +13126,9 @@ function openReviewScreen(model) {
     _revImgWrap.style.display = 'block';
   }
 
-  document.getElementById('revModel').textContent = `${Game.brand} — ${model.name}`;
+  const _revLogo = (window.LOGOS && Game.logoIndex !== undefined) ? (LOGOS[Game.logoIndex]?.svg || '') : '';
+  const _revLogoSmall = _revLogo.replace(/width="56"/g,'width="22"').replace(/height="56"/g,'height="22"');
+  document.getElementById('revModel').innerHTML = `<span style="display:inline-flex;align-items:center;gap:6px;"><span style="display:inline-flex;vertical-align:middle;flex-shrink:0;">${_revLogoSmall}</span>${Game.brand} — ${model.name}</span>`;
   document.getElementById('revCat').textContent = cat.icon + ' ' + catName;
 
   // Puan hesapla — qualityScore + kategori bonusu
@@ -15509,8 +15511,10 @@ function renderOfficePanel() {
   const totalDays = absDay;
   const b = Game.staffBonuses || calcStaffBonuses();
 
-  // Logo SVG
-  const logoSVG = (window.LOGOS && Game.logoIndex !== undefined) ? (LOGOS[Game.logoIndex]?.svg || '') : '';
+  // Logo SVG — 40px boyutunda göster
+  const logoSVG = (window.LOGOS && Game.logoIndex !== undefined)
+    ? (LOGOS[Game.logoIndex]?.svg || '').replace(/width="56"/g,'width="40"').replace(/height="56"/g,'height="40"')
+    : '';
 
   const groups = [
     { key:'engineer',   label: isTR?'Üretim Ekibi — Mühendisler':'Production — Engineers' },
@@ -16035,22 +16039,22 @@ function launchConfetti() {
   canvas.height = window.innerHeight;
 
   const COLORS = ['#c4973a','#e8c97a','#f0ebe3','#5aad6a','#d9614e','#8a8078'];
-  const pieces = Array.from({length: 90}, () => ({
+  const pieces = Array.from({length: 200}, () => ({
     x: Math.random() * canvas.width,
-    y: -10 - Math.random() * 40,
-    r: 3 + Math.random() * 4,
-    d: 1.5 + Math.random() * 2.5,
+    y: -10 - Math.random() * 80,
+    r: 3 + Math.random() * 5,
+    d: 1.2 + Math.random() * 2.8,
     color: COLORS[Math.floor(Math.random() * COLORS.length)],
     tilt: Math.random() * Math.PI * 2,
-    tiltV: 0.04 + Math.random() * 0.08,
+    tiltV: 0.03 + Math.random() * 0.07,
     shape: Math.random() > 0.5 ? 'rect' : 'circle'
   }));
 
   let frame = 0;
-  const MAX = 120;
+  const MAX = 300;
   function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    const alpha = frame < 80 ? 1 : 1 - (frame - 80) / 40;
+    const alpha = frame < 240 ? 1 : 1 - (frame - 240) / 60;
     pieces.forEach(p => {
       ctx.save();
       ctx.globalAlpha = alpha;
