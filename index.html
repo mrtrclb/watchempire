@@ -2268,11 +2268,23 @@
   }
   .reviewer-card.low { border-left-color: var(--rust); }
   .reviewer-avatar {
-    width: 40px; height: 40px; border-radius: 50%;
+    width: 52px; height: 52px; border-radius: 50%;
     display: flex; align-items: center; justify-content: center;
     font-size: 15px; font-weight: 700; color: #fff;
     flex-shrink: 0; letter-spacing: 0;
     font-family: system-ui, sans-serif;
+    overflow: hidden;
+  }
+  .reviewer-avatar img {
+    width: 100%; height: 100%; object-fit: cover; object-position: center top;
+    border-radius: 50%;
+  }
+  .reviewer-avatar.is-logo {
+    border-radius: 8px;
+  }
+  .reviewer-avatar.is-logo img {
+    border-radius: 8px;
+    object-position: center center;
   }
   .reviewer-body { flex: 1; min-width: 0; }
   .reviewer-name { font-size: 13px; font-weight: 600; color: #f0ebe3; }
@@ -3954,9 +3966,7 @@
 
     <!-- Tasarımcı Tut bölümü -->
     <div id="design-designer-section" style="display:none;">
-      <div id="designer-selected-card" style="display:none;background:#1a1714;border:1px solid var(--border-gold);overflow:hidden;margin-bottom:12px;">
-        <div id="ds-portrait" style="width:100%;height:110px;overflow:hidden;border-bottom:1px solid var(--border-gold);display:flex;align-items:center;justify-content:center;font-size:32px;background:#161310;"></div>
-        <div style="padding:12px 14px 14px 14px;">
+      <div id="designer-selected-card" style="display:none;background:#1a1714;border:1px solid var(--border-gold);padding:14px;margin-bottom:12px;">
         <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;">
           <div>
             <div style="font-size:14px;font-weight:700;color:var(--ink);" id="ds-name">—</div>
@@ -3972,7 +3982,6 @@
         <button onclick="clearDesigner()" style="margin-top:10px;width:100%;background:transparent;border:1px solid var(--border);color:var(--slate);padding:6px;font-size:11px;cursor:pointer;font-family:system-ui,sans-serif;">
           <span data-tr="Tasarımcıyı Değiştir" data-en="Change Designer">Tasarımcıyı Değiştir</span>
         </button>
-        </div>
       </div>
 
       <div id="designer-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;"></div>
@@ -8397,21 +8406,21 @@ function selectRndModel(modelId, btn) {
 // ══════════════════════════════════════════
 
 const DESIGNERS = [
-  { id:'d01', name:'Hiroshi Tanaka',    type_tr:'Saat Ustası', type_en:'Watchmaker',              flag:'🇯🇵', fee:8,  speciality:['mechanical','automatic'],           bonuses:{ quality:18, rating:0.35, cost_mult:1.05 }, tags:['Hassasiyet','Mekanik','Japon estetiği'],  quote_tr:'Mükemmellik her vidalı ayrıntıda saklıdır.', quote_en:'Perfection is hidden in every threaded detail.',                    portrait:'/assets/designers/hiroshi-tanaka.webp'  },
-  { id:'d02', name:'Cléo Marchand',     type_tr:'Lüks Moda Tasarımcısı', type_en:'Luxury Fashion Designer',    flag:'🇫🇷', fee:12, speciality:['luxury','superluxury'],              bonuses:{ quality:10, rating:0.45, cost_mult:1.12 }, tags:['Haute couture','Lüks','Feminen'],         quote_tr:'Her saat satılmadan önce bir sanat eseridir.', quote_en:'Every watch is a work of art before it is sold.',                  portrait:'/assets/designers/cleo-marchand.webp'  },
-  { id:'d03', name:'Marcus Webb',       type_tr:'Endüstriyel Tasarımcı', type_en:'Industrial Designer',    flag:'🇩🇪', fee:7,  speciality:['sport','economy','automatic'],       bonuses:{ quality:12, rating:0.20, cost_mult:0.97 }, tags:['Fonksiyonel','Dayanıklı','Bauhaus'],      quote_tr:'Form fonksiyonu takip eder — her zaman.', quote_en:'Form follows function — always.',                       portrait:'/assets/designers/marcus-webb.webp'  },
-  { id:'d04', name:'Zeynep Arslan',     type_tr:'Yerel Usta', type_en:'Local Master',               flag:'🇹🇷', fee:4,  speciality:['mechanical','quartz','economy'],     bonuses:{ quality:8,  rating:0.15, cost_mult:0.93 }, tags_tr:['Uygun fiyat','Yerel','Geleneksel'], tags_en:['Affordable','Local','Traditional'],       quote_tr:'Her saat bir hikaye, her kasa bir yuva.', quote_en:'Every watch a story, every case a home.',                       portrait:'/assets/designers/zeynep-arslan.webp'  },
-  { id:'d05', name:'Alex Park',         type_tr:'Sosyal Medya Fenomeni', type_en:'Social Media Influencer',    flag:'🇰🇷', fee:15, speciality:['smart','sport','quartz'],            bonuses:{ quality:5,  rating:0.55, cost_mult:1.08 }, tags:['Viral','Gen Z','Streetwear'],             quote_tr:'Saat takmayanlar bile bu modeli takacak.', quote_en:'Even non-watch-wearers will wear this model.',                      portrait:'/assets/designers/alex-park.webp'  },
-  { id:'d06', name:'Ivan Petrov',       type_tr:'Avant-Garde Sanatçı', type_en:'Avant-Garde Artist',      flag:'🇷🇺', fee:10, speciality:['luxury','mechanical','superluxury'], bonuses:{ quality:14, rating:0.40, cost_mult:1.10 }, tags:['Deneysel','Sanat','Koleksiyoncu'],        quote_tr:'Zaman bir illüzyon — tasarım ise gerçek.', quote_en:'Time is an illusion — design is reality.',                      portrait:'/assets/designers/ivan-petrov.webp'  },
-  { id:'d07', name:'Priya Sharma',      type_tr:'Pazarlama Dehası', type_en:'Marketing Genius',         flag:'🇮🇳', fee:11, speciality:['economy','quartz','sport'],          bonuses:{ quality:4,  rating:0.50, cost_mult:1.03 }, tags:['Pazar bilgisi','Kitlesel','Satış odaklı'],quote_tr:'İnsanlar ürün almaz, his satin alır.', quote_en:'People don\'t buy products, they buy feelings.',                          portrait:'/assets/designers/priya-sharma.webp'  },
-  { id:'d08', name:'Luca Ferretti',     type:'İtalyan Zanaatkarı',       flag:'🇮🇹', fee:9,  speciality:['luxury','mechanical','automatic'],   bonuses:{ quality:16, rating:0.30, cost_mult:1.08 }, tags_tr:['El yapımı','İtalyan','Lüks'], tags_en:['Handmade','Italian','Luxury'],             quote_tr:'Zarafet asla modası geçmez.', quote_en:'Elegance never goes out of style.',                                   portrait:'/assets/designers/luca-ferretti.webp'  },
-  { id:'d09', name:'Yuki Sato',         type_tr:'Minimalist Tasarımcı', type_en:'Minimalist Designer',     flag:'🇯🇵', fee:7,  speciality:['quartz','automatic','smart'],        bonuses:{ quality:10, rating:0.28, cost_mult:0.98 }, tags:['Minimalizm','Wabi-sabi','Temiz'],         quote_tr:'Gereksiz olanı çıkardığında gerçek güzellik kalır.', quote_en:'When you remove the unnecessary, true beauty remains.',            portrait:'/assets/designers/yuki-sato.webp'  },
-  { id:'d10', name:'Carlos Mendez',     type_tr:'Spor Tasarımcısı', type_en:'Sports Designer',         flag:'🇲🇽', fee:6,  speciality:['sport','economy'],                  bonuses:{ quality:9,  rating:0.22, cost_mult:0.96 }, tags:['Spor','Dayanıklı','Aktif yaşam'],         quote_tr:'Her sporcunun bileğine yakışan bir saat var.', quote_en:'There is a watch worthy of every athlete\'s wrist.',                  portrait:'/assets/designers/carlos-mendez.webp'  },
-  { id:'d11', name:'Sofia Chen',        type_tr:'Tech Tasarımcısı', type_en:'Tech Designer',         flag:'🇨🇳', fee:9,  speciality:['smart','quartz'],                   bonuses:{ quality:14, rating:0.35, cost_mult:1.04 }, tags:['Teknoloji','UX','Smart'],                 quote_tr:'Akıllı cihazlar da güzel olabilir.', quote_en:'Smart devices can be beautiful too.',                            portrait:'/assets/designers/sofia-chen.webp'  },
-  { id:'d12', name:'Amara Osei',        type_tr:'Kültürel Miras Tasarımcısı', type_en:'Cultural Heritage Designer',flag:'🇬🇭',fee:8,  speciality:['luxury','mechanical'],              bonuses:{ quality:11, rating:0.38, cost_mult:1.06 }, tags:['Kültürel','Eşsiz','Hikaye'],             quote_tr:'Mirasımız en değerli tasarım ilhamıdır.', quote_en:'Our heritage is the most valuable design inspiration.',                       portrait:'/assets/designers/amara-osei.webp'  },
-  { id:'d13', name:'Felix Müller',      type_tr:'Sertifika Uzmanı', type_en:'Certification Expert',         flag:'🇨🇭', fee:13, speciality:['mechanical','automatic','luxury'],   bonuses:{ quality:20, rating:0.42, cost_mult:1.15 }, tags_tr:['İsviçre standardı','Sertifika','COSC'], tags_en:['Swiss Standard','Certified','COSC'],  quote_tr:'Bir saat ya COSC kalitesindedir ya da sadece saat.', quote_en:'A watch is either COSC quality, or it\'s just a timepiece.',            portrait:'/assets/designers/felix-muller.webp' },
-  { id:'d14', name:'Mia Johansson',     type_tr:'Sürdürülebilir Tasarımcı', type_en:'Sustainable Designer', flag:'🇸🇪', fee:7,  speciality:['economy','quartz','sport'],          bonuses:{ quality:8,  rating:0.25, cost_mult:0.95 }, tags_tr:['Eko','Sürdürülebilir','Doğa'], tags_en:['Eco','Sustainable','Nature'],            quote_tr:'Gezegenimize zarar vermeden de güzel tasarlanabilir.', quote_en:'Beautiful design is possible without harming our planet.',          portrait:'/assets/designers/mia-johansson.webp'  },
-  { id:'d15', name:'Rashid Al-Farsi',   type_tr:'Lüks Mücevher Tasarımcısı', type_en:'Luxury Jewellery Designer',flag:'🇦🇪', fee:18, speciality:['superluxury','luxury'],              bonuses:{ quality:15, rating:0.60, cost_mult:1.20 }, tags:['Ultra lüks','Mücevher','Özel sipariş'],  quote_tr:'Sınır bilmeyenler için tasarım yapıyorum.', quote_en:'I design for those who know no limits.',                     portrait:'/assets/designers/rashid-al-farsi.webp'  },
+  { id:'d01', name:'Hiroshi Tanaka',    type_tr:'Saat Ustası', type_en:'Watchmaker',              flag:'🇯🇵', fee:8,  speciality:['mechanical','automatic'],           bonuses:{ quality:18, rating:0.35, cost_mult:1.05 }, tags:['Hassasiyet','Mekanik','Japon estetiği'],  quote_tr:'Mükemmellik her vidalı ayrıntıda saklıdır.', quote_en:'Perfection is hidden in every threaded detail.',                    portrait:'⚙️'  },
+  { id:'d02', name:'Cléo Marchand',     type_tr:'Lüks Moda Tasarımcısı', type_en:'Luxury Fashion Designer',    flag:'🇫🇷', fee:12, speciality:['luxury','superluxury'],              bonuses:{ quality:10, rating:0.45, cost_mult:1.12 }, tags:['Haute couture','Lüks','Feminen'],         quote_tr:'Her saat satılmadan önce bir sanat eseridir.', quote_en:'Every watch is a work of art before it is sold.',                  portrait:'💎'  },
+  { id:'d03', name:'Marcus Webb',       type_tr:'Endüstriyel Tasarımcı', type_en:'Industrial Designer',    flag:'🇩🇪', fee:7,  speciality:['sport','economy','automatic'],       bonuses:{ quality:12, rating:0.20, cost_mult:0.97 }, tags:['Fonksiyonel','Dayanıklı','Bauhaus'],      quote_tr:'Form fonksiyonu takip eder — her zaman.', quote_en:'Form follows function — always.',                       portrait:'📐'  },
+  { id:'d04', name:'Zeynep Arslan',     type_tr:'Yerel Usta', type_en:'Local Master',               flag:'🇹🇷', fee:4,  speciality:['mechanical','quartz','economy'],     bonuses:{ quality:8,  rating:0.15, cost_mult:0.93 }, tags_tr:['Uygun fiyat','Yerel','Geleneksel'], tags_en:['Affordable','Local','Traditional'],       quote_tr:'Her saat bir hikaye, her kasa bir yuva.', quote_en:'Every watch a story, every case a home.',                       portrait:'🌙'  },
+  { id:'d05', name:'Alex Park',         type_tr:'Sosyal Medya Fenomeni', type_en:'Social Media Influencer',    flag:'🇰🇷', fee:15, speciality:['smart','sport','quartz'],            bonuses:{ quality:5,  rating:0.55, cost_mult:1.08 }, tags:['Viral','Gen Z','Streetwear'],             quote_tr:'Saat takmayanlar bile bu modeli takacak.', quote_en:'Even non-watch-wearers will wear this model.',                      portrait:'📱'  },
+  { id:'d06', name:'Ivan Petrov',       type_tr:'Avant-Garde Sanatçı', type_en:'Avant-Garde Artist',      flag:'🇷🇺', fee:10, speciality:['luxury','mechanical','superluxury'], bonuses:{ quality:14, rating:0.40, cost_mult:1.10 }, tags:['Deneysel','Sanat','Koleksiyoncu'],        quote_tr:'Zaman bir illüzyon — tasarım ise gerçek.', quote_en:'Time is an illusion — design is reality.',                      portrait:'🎭'  },
+  { id:'d07', name:'Priya Sharma',      type_tr:'Pazarlama Dehası', type_en:'Marketing Genius',         flag:'🇮🇳', fee:11, speciality:['economy','quartz','sport'],          bonuses:{ quality:4,  rating:0.50, cost_mult:1.03 }, tags:['Pazar bilgisi','Kitlesel','Satış odaklı'],quote_tr:'İnsanlar ürün almaz, his satin alır.', quote_en:'People don\'t buy products, they buy feelings.',                          portrait:'📊'  },
+  { id:'d08', name:'Luca Ferretti',     type:'İtalyan Zanaatkarı',       flag:'🇮🇹', fee:9,  speciality:['luxury','mechanical','automatic'],   bonuses:{ quality:16, rating:0.30, cost_mult:1.08 }, tags_tr:['El yapımı','İtalyan','Lüks'], tags_en:['Handmade','Italian','Luxury'],             quote_tr:'Zarafet asla modası geçmez.', quote_en:'Elegance never goes out of style.',                                   portrait:'🏺'  },
+  { id:'d09', name:'Yuki Sato',         type_tr:'Minimalist Tasarımcı', type_en:'Minimalist Designer',     flag:'🇯🇵', fee:7,  speciality:['quartz','automatic','smart'],        bonuses:{ quality:10, rating:0.28, cost_mult:0.98 }, tags:['Minimalizm','Wabi-sabi','Temiz'],         quote_tr:'Gereksiz olanı çıkardığında gerçek güzellik kalır.', quote_en:'When you remove the unnecessary, true beauty remains.',            portrait:'⬜'  },
+  { id:'d10', name:'Carlos Mendez',     type_tr:'Spor Tasarımcısı', type_en:'Sports Designer',         flag:'🇲🇽', fee:6,  speciality:['sport','economy'],                  bonuses:{ quality:9,  rating:0.22, cost_mult:0.96 }, tags:['Spor','Dayanıklı','Aktif yaşam'],         quote_tr:'Her sporcunun bileğine yakışan bir saat var.', quote_en:'There is a watch worthy of every athlete\'s wrist.',                  portrait:'🏃'  },
+  { id:'d11', name:'Sofia Chen',        type_tr:'Tech Tasarımcısı', type_en:'Tech Designer',         flag:'🇨🇳', fee:9,  speciality:['smart','quartz'],                   bonuses:{ quality:14, rating:0.35, cost_mult:1.04 }, tags:['Teknoloji','UX','Smart'],                 quote_tr:'Akıllı cihazlar da güzel olabilir.', quote_en:'Smart devices can be beautiful too.',                            portrait:'💻'  },
+  { id:'d12', name:'Amara Osei',        type_tr:'Kültürel Miras Tasarımcısı', type_en:'Cultural Heritage Designer',flag:'🇬🇭',fee:8,  speciality:['luxury','mechanical'],              bonuses:{ quality:11, rating:0.38, cost_mult:1.06 }, tags:['Kültürel','Eşsiz','Hikaye'],             quote_tr:'Mirasımız en değerli tasarım ilhamıdır.', quote_en:'Our heritage is the most valuable design inspiration.',                       portrait:'🌍'  },
+  { id:'d13', name:'Felix Müller',      type_tr:'Sertifika Uzmanı', type_en:'Certification Expert',         flag:'🇨🇭', fee:13, speciality:['mechanical','automatic','luxury'],   bonuses:{ quality:20, rating:0.42, cost_mult:1.15 }, tags_tr:['İsviçre standardı','Sertifika','COSC'], tags_en:['Swiss Standard','Certified','COSC'],  quote_tr:'Bir saat ya COSC kalitesindedir ya da sadece saat.', quote_en:'A watch is either COSC quality, or it\'s just a timepiece.',            portrait:'🎖️' },
+  { id:'d14', name:'Mia Johansson',     type_tr:'Sürdürülebilir Tasarımcı', type_en:'Sustainable Designer', flag:'🇸🇪', fee:7,  speciality:['economy','quartz','sport'],          bonuses:{ quality:8,  rating:0.25, cost_mult:0.95 }, tags_tr:['Eko','Sürdürülebilir','Doğa'], tags_en:['Eco','Sustainable','Nature'],            quote_tr:'Gezegenimize zarar vermeden de güzel tasarlanabilir.', quote_en:'Beautiful design is possible without harming our planet.',          portrait:'🌿'  },
+  { id:'d15', name:'Rashid Al-Farsi',   type_tr:'Lüks Mücevher Tasarımcısı', type_en:'Luxury Jewellery Designer',flag:'🇦🇪', fee:18, speciality:['superluxury','luxury'],              bonuses:{ quality:15, rating:0.60, cost_mult:1.20 }, tags:['Ultra lüks','Mücevher','Özel sipariş'],  quote_tr:'Sınır bilmeyenler için tasarım yapıyorum.', quote_en:'I design for those who know no limits.',                     portrait:'👑'  },
 ];
 
 const ModelDesigners = {};
@@ -8448,15 +8457,7 @@ function renderDesignerGrid() {
     if (d) {
       selectedCard.style.display = '';
       grid.style.display = 'none';
-      const dsPortraitEl = document.getElementById('ds-portrait');
-      if (dsPortraitEl) {
-        if (d.portrait.startsWith('/')) {
-          dsPortraitEl.innerHTML = '<img src="' + d.portrait + '" alt="' + d.name + '" style="width:100%;height:100%;object-fit:cover;object-position:center top;display:block;border-radius:2px;" onerror="this.parentElement.textContent=\'👤\'">';
-        } else {
-          dsPortraitEl.textContent = d.portrait;
-        }
-      }
-      document.getElementById('ds-name').textContent  = d.name;
+      document.getElementById('ds-name').textContent  = d.portrait + ' ' + d.name;
       document.getElementById('ds-type').textContent  = d.flag + ' ' + (Game.lang==='tr'?(d.type_tr||d.type):(d.type_en||d.type));
       document.getElementById('ds-fee').textContent   = '%' + d.fee + (Game.lang==='tr'?' ek maliyet / ürün':' extra cost / unit');
       document.getElementById('ds-bonus').textContent = '+' + d.bonuses.quality + (Game.lang==='tr'?' kalite  ':' quality  +') + d.bonuses.rating.toFixed(2) + (Game.lang==='tr'?' puan':' rating');
@@ -8477,20 +8478,13 @@ function renderDesignerGrid() {
   grid.innerHTML = sorted.map(d => {
     const isFit = cat && d.speciality.includes(cat);
     const bc = isFit ? 'rgba(196,151,58,0.4)' : 'var(--border)';
-    const portraitHtml = d.portrait.startsWith('/')
-      ? '<div style="width:100%;height:90px;overflow:hidden;margin-bottom:8px;border-bottom:1px solid ' + bc + ';">'
-        + '<img src="' + d.portrait + '" alt="' + d.name + '" loading="lazy" style="width:100%;height:100%;object-fit:cover;object-position:center top;display:block;" onerror="this.parentElement.innerHTML=\'<div style=&quot;width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:28px;background:var(--warm-white);&quot;>👤</div>\'">'
-        + '</div>'
-      : '<div style="font-size:18px;margin-bottom:8px;">' + d.portrait + '</div>';
-    return '<div onclick="selectDesigner(\'' + d.id + '\')" style="background:' + (isFit?'#1a1714':'#161310') + ';border:1px solid ' + bc + ';cursor:pointer;transition:all 0.15s;position:relative;overflow:hidden;" onmouseover="this.style.borderColor=\'var(--gold)\'" onmouseout="this.style.borderColor=\'' + bc + '\'">'
-      + (isFit ? '<div style="position:absolute;top:6px;right:6px;font-size:9px;color:var(--gold);font-family:monospace;z-index:1;background:rgba(21,18,16,0.8);padding:2px 4px;">✦ uyumlu</div>' : '')
-      + portraitHtml
-      + '<div style="padding:0 10px 10px 10px;">'
+    return '<div onclick="selectDesigner(\'' + d.id + '\')" style="background:' + (isFit?'#1a1714':'#161310') + ';border:1px solid ' + bc + ';padding:12px;cursor:pointer;transition:all 0.15s;position:relative;" onmouseover="this.style.borderColor=\'var(--gold)\'" onmouseout="this.style.borderColor=\'' + bc + '\'">'
+      + (isFit ? '<div style="position:absolute;top:6px;right:6px;font-size:9px;color:var(--gold);font-family:monospace;">✦ uyumlu</div>' : '')
+      + '<div style="font-size:18px;margin-bottom:4px;">' + d.portrait + '</div>'
       + '<div style="font-size:12px;font-weight:700;color:var(--ink);margin-bottom:2px;">' + d.name + '</div>'
       + '<div style="font-size:9px;color:var(--slate);margin-bottom:6px;">' + d.flag + ' ' + (Game.lang==='tr'?(d.type_tr||d.type):(d.type_en||d.type)) + '</div>'
       + '<div style="font-size:10px;color:var(--rust);font-family:monospace;margin-bottom:4px;">% ' + d.fee + ' / ürün</div>'
       + '<div style="font-size:9px;color:var(--slate);">' + (Game.lang==='tr'?(d.tags_tr||d.tags||[]):(d.tags_en||d.tags||[])).slice(0,2).join(' · ') + '</div>'
-      + '</div>'
       + '</div>';
   }).join('');
 }
@@ -12244,37 +12238,37 @@ function discardPendingModel(modelId) {
 
 const REVIEWERS = [
   // ── Bireysel Eleştirmenler ──
-  { name:'Hakan Demir',        role_tr:'Fiyat/Performans Uzmanı',    role_en:'Price/Performance Analyst',    focus:'value',      avatar:'HD', color:'#2563eb' },
-  { name:'Sofia Rossi',        role_tr:'Estetik & Tasarım Editörü',  role_en:'Aesthetics & Design Editor',   focus:'design',     avatar:'SR', color:'#db2777' },
-  { name:'James Wei',          role_tr:'Teknik Analist',              role_en:'Technical Analyst',            focus:'tech',       avatar:'JW', color:'#0891b2' },
-  { name:'Leyla Kahraman',     role_tr:'Tüketici Deneyimi',           role_en:'Consumer Experience',          focus:'ux',         avatar:'LK', color:'#7c3aed' },
-  { name:'Graf von Steiner',   role_tr:'Lüks & Prestij Editörü',     role_en:'Luxury & Prestige Editor',     focus:'luxury',     avatar:'GS', color:'#92400e' },
-  { name:'Dr. Kenji Tanaka',   role_tr:'Hassasiyet & Kalibrasyon',   role_en:'Precision & Calibration',      focus:'tech',       avatar:'KT', color:'#065f46' },
-  { name:'Mira Santos',        role_tr:'Lifestyle & Moda Editörü',   role_en:'Lifestyle & Fashion Editor',   focus:'design',     avatar:'MS', color:'#be185d' },
-  { name:'Pavel Novak',        role_tr:'Koleksiyoncu & Yatırımcı',   role_en:'Collector & Investor',         focus:'luxury',     avatar:'PN', color:'#374151' },
-  { name:'Amara Diallo',       role_tr:'Bağımsız Saat Blogu',        role_en:'Independent Watch Blog',       focus:'mechanical', avatar:'AD', color:'#b45309' },
-  { name:'Chen Jing',          role_tr:'Akıllı Saat Editörü',        role_en:'Smartwatch Editor',            focus:'smart',      avatar:'CJ', color:'#0e7490' },
-  { name:'Fatima Al-Hassan',   role_tr:'Premium Segment Analisti',   role_en:'Premium Segment Analyst',      focus:'luxury',     avatar:'FA', color:'#6d28d9' },
-  { name:'Marco Bianchi',      role_tr:'Mekanik Saat Yazarı',        role_en:'Mechanical Watch Writer',      focus:'mechanical', avatar:'MB', color:'#1d4ed8' },
-  { name:'Yuki Tanabe',        role_tr:'Japon Saat Forumu',          role_en:'Japanese Watch Forum',         focus:'tech',       avatar:'YT', color:'#0f766e' },
-  { name:'Elena Popescu',      role_tr:'Kullanıcı Deneyim Uzmanı',   role_en:'UX Specialist',                focus:'ux',         avatar:'EP', color:'#9d174d' },
-  { name:'Dimitri Volkov',     role_tr:'Süper Lüks Koleksiyoner',    role_en:'Super Luxury Collector',       focus:'luxury',     avatar:'DV', color:'#1e3a5f' },
-  { name:'Nadia Okonkwo',      role_tr:'Tasarım & Trend Analisti',   role_en:'Design & Trend Analyst',       focus:'design',     avatar:'NO', color:'#7e22ce' },
-  { name:'Lars Eriksson',      role_tr:'İskandinav Saat Dergisi',    role_en:'Scandinavian Watch Journal',   focus:'design',     avatar:'LE', color:'#155e75' },
-  { name:'Priya Sharma',       role_tr:'Teknoloji & Giyilebilir',    role_en:'Tech & Wearables',             focus:'smart',      avatar:'PS', color:'#be123c' },
-  { name:'Carlos Mendez',      role_tr:'Latin Amerika Saat Dünyası', role_en:'Latin Watch World',            focus:'value',      avatar:'CM', color:'#15803d' },
-  { name:'Aigerim Bekova',     role_tr:'Bağımsız Eleştirmen',        role_en:'Independent Critic',           focus:'ux',         avatar:'AB', color:'#b91c1c' },
+  { name:'Hakan Demir',        role_tr:'Fiyat/Performans Uzmanı',    role_en:'Price/Performance Analyst',    focus:'value',      avatar:'HD', color:'#2563eb', portrait:'/assets/reviewers/hakan-demir.webp' },
+  { name:'Sofia Rossi',        role_tr:'Estetik & Tasarım Editörü',  role_en:'Aesthetics & Design Editor',   focus:'design',     avatar:'SR', color:'#db2777', portrait:'/assets/reviewers/sofia-rossi.webp' },
+  { name:'James Wei',          role_tr:'Teknik Analist',              role_en:'Technical Analyst',            focus:'tech',       avatar:'JW', color:'#0891b2', portrait:'/assets/reviewers/james-wei.webp' },
+  { name:'Leyla Kahraman',     role_tr:'Tüketici Deneyimi',           role_en:'Consumer Experience',          focus:'ux',         avatar:'LK', color:'#7c3aed', portrait:'/assets/reviewers/leyla-kahraman.webp' },
+  { name:'Graf von Steiner',   role_tr:'Lüks & Prestij Editörü',     role_en:'Luxury & Prestige Editor',     focus:'luxury',     avatar:'GS', color:'#92400e', portrait:'/assets/reviewers/graf-von-steiner.webp' },
+  { name:'Dr. Kenji Tanaka',   role_tr:'Hassasiyet & Kalibrasyon',   role_en:'Precision & Calibration',      focus:'tech',       avatar:'KT', color:'#065f46', portrait:'/assets/reviewers/kenji-tanaka.webp' },
+  { name:'Mira Santos',        role_tr:'Lifestyle & Moda Editörü',   role_en:'Lifestyle & Fashion Editor',   focus:'design',     avatar:'MS', color:'#be185d', portrait:'/assets/reviewers/mira-santos.webp' },
+  { name:'Pavel Novak',        role_tr:'Koleksiyoncu & Yatırımcı',   role_en:'Collector & Investor',         focus:'luxury',     avatar:'PN', color:'#374151', portrait:'/assets/reviewers/pavel-novak.webp' },
+  { name:'Amara Diallo',       role_tr:'Bağımsız Saat Blogu',        role_en:'Independent Watch Blog',       focus:'mechanical', avatar:'AD', color:'#b45309', portrait:'/assets/reviewers/amara-diallo.webp' },
+  { name:'Chen Jing',          role_tr:'Akıllı Saat Editörü',        role_en:'Smartwatch Editor',            focus:'smart',      avatar:'CJ', color:'#0e7490', portrait:'/assets/reviewers/chen-jing.webp' },
+  { name:'Fatima Al-Hassan',   role_tr:'Premium Segment Analisti',   role_en:'Premium Segment Analyst',      focus:'luxury',     avatar:'FA', color:'#6d28d9', portrait:'/assets/reviewers/fatima-al-hassan.webp' },
+  { name:'Marco Bianchi',      role_tr:'Mekanik Saat Yazarı',        role_en:'Mechanical Watch Writer',      focus:'mechanical', avatar:'MB', color:'#1d4ed8', portrait:'/assets/reviewers/marco-bianchi.webp' },
+  { name:'Yuki Tanabe',        role_tr:'Japon Saat Forumu',          role_en:'Japanese Watch Forum',         focus:'tech',       avatar:'YT', color:'#0f766e', portrait:'/assets/reviewers/yuki-tanabe.webp' },
+  { name:'Elena Popescu',      role_tr:'Kullanıcı Deneyim Uzmanı',   role_en:'UX Specialist',                focus:'ux',         avatar:'EP', color:'#9d174d', portrait:'/assets/reviewers/elena-popescu.webp' },
+  { name:'Dimitri Volkov',     role_tr:'Süper Lüks Koleksiyoner',    role_en:'Super Luxury Collector',       focus:'luxury',     avatar:'DV', color:'#1e3a5f', portrait:'/assets/reviewers/dimitri-volkov.webp' },
+  { name:'Nadia Okonkwo',      role_tr:'Tasarım & Trend Analisti',   role_en:'Design & Trend Analyst',       focus:'design',     avatar:'NO', color:'#7e22ce', portrait:'/assets/reviewers/nadia-okonkwo.webp' },
+  { name:'Lars Eriksson',      role_tr:'İskandinav Saat Dergisi',    role_en:'Scandinavian Watch Journal',   focus:'design',     avatar:'LE', color:'#155e75', portrait:'/assets/reviewers/lars-eriksson.webp' },
+  { name:'Priya Sharma',       role_tr:'Teknoloji & Giyilebilir',    role_en:'Tech & Wearables',             focus:'smart',      avatar:'PS', color:'#be123c', portrait:'/assets/reviewers/priya-sharma.webp' },
+  { name:'Carlos Mendez',      role_tr:'Latin Amerika Saat Dünyası', role_en:'Latin Watch World',            focus:'value',      avatar:'CM', color:'#15803d', portrait:'/assets/reviewers/carlos-mendez.webp' },
+  { name:'Aigerim Bekova',     role_tr:'Bağımsız Eleştirmen',        role_en:'Independent Critic',           focus:'ux',         avatar:'AB', color:'#b91c1c', portrait:'/assets/reviewers/aigerim-bekova.webp' },
   // ── Yayınlar ──
-  { name:'TechPulse Blog',     role_tr:'Teknoloji & Akıllı Saat',   role_en:'Tech & Smartwatch',            focus:'smart',      avatar:'TP', color:'#4f46e5' },
-  { name:'WatchForum TR',      role_tr:'Mekanik Saat Topluluğu',    role_en:'Mechanical Watch Community',   focus:'mechanical', avatar:'WF', color:'#1e40af' },
-  { name:'Retail Weekly',      role_tr:'Perakende & Pazar Analizi', role_en:'Retail & Market Analysis',     focus:'value',      avatar:'RW', color:'#374151' },
-  { name:'Chrono Magazine',    role_tr:'Uluslararası Saat Dergisi', role_en:'International Watch Magazine', focus:'design',     avatar:'CM', color:'#92400e' },
-  { name:'HoroBlog',           role_tr:'Horoloji Blogu',            role_en:'Horology Blog',                focus:'mechanical', avatar:'HB', color:'#065f46' },
-  { name:'WristCheck',         role_tr:'Saat İnceleme Platformu',   role_en:'Watch Review Platform',        focus:'value',      avatar:'WC', color:'#0f766e' },
-  { name:'LuxeHora',           role_tr:'Lüks Saat Dergisi',        role_en:'Luxury Watch Magazine',        focus:'luxury',     avatar:'LH', color:'#7c2d12' },
-  { name:'SmartWear Today',    role_tr:'Giyilebilir Teknoloji',     role_en:'Wearable Technology',          focus:'smart',      avatar:'SW', color:'#312e81' },
-  { name:'TimeKeeper Weekly',  role_tr:'Haftalık Saat Bülteni',     role_en:'Weekly Watch Bulletin',        focus:'tech',       avatar:'TK', color:'#134e4a' },
-  { name:'The Dial Review',    role_tr:'Kadran & Tasarım Dergisi',  role_en:'Dial & Design Magazine',       focus:'design',     avatar:'DR', color:'#831843' },
+  { name:'TechPulse Blog',     role_tr:'Teknoloji & Akıllı Saat',   role_en:'Tech & Smartwatch',            focus:'smart',      avatar:'TP', color:'#4f46e5', portrait:'/assets/publications/techpulse.webp' },
+  { name:'WatchForum TR',      role_tr:'Mekanik Saat Topluluğu',    role_en:'Mechanical Watch Community',   focus:'mechanical', avatar:'WF', color:'#1e40af', portrait:'/assets/publications/watchforumtr.webp' },
+  { name:'Retail Weekly',      role_tr:'Perakende & Pazar Analizi', role_en:'Retail & Market Analysis',     focus:'value',      avatar:'RW', color:'#374151', portrait:'/assets/publications/retailweekly.webp' },
+  { name:'Chrono Magazine',    role_tr:'Uluslararası Saat Dergisi', role_en:'International Watch Magazine', focus:'design',     avatar:'CM', color:'#92400e', portrait:'/assets/publications/chrono-magazine.webp' },
+  { name:'HoroBlog',           role_tr:'Horoloji Blogu',            role_en:'Horology Blog',                focus:'mechanical', avatar:'HB', color:'#065f46', portrait:'/assets/publications/horoblog.webp' },
+  { name:'WristCheck',         role_tr:'Saat İnceleme Platformu',   role_en:'Watch Review Platform',        focus:'value',      avatar:'WC', color:'#0f766e', portrait:'/assets/publications/wristcheck.webp' },
+  { name:'LuxeHora',           role_tr:'Lüks Saat Dergisi',        role_en:'Luxury Watch Magazine',        focus:'luxury',     avatar:'LH', color:'#7c2d12', portrait:'/assets/publications/luxehora.webp' },
+  { name:'SmartWear Today',    role_tr:'Giyilebilir Teknoloji',     role_en:'Wearable Technology',          focus:'smart',      avatar:'SW', color:'#312e81', portrait:'/assets/publications/smartweartoday.webp' },
+  { name:'TimeKeeper Weekly',  role_tr:'Haftalık Saat Bülteni',     role_en:'Weekly Watch Bulletin',        focus:'tech',       avatar:'TK', color:'#134e4a', portrait:'/assets/publications/timekeeperweekly.webp' },
+  { name:'The Dial Review',    role_tr:'Kadran & Tasarım Dergisi',  role_en:'Dial & Design Magazine',       focus:'design',     avatar:'DR', color:'#831843', portrait:'/assets/publications/the-dial-review.webp' },
 ];
 
 
@@ -12945,7 +12939,7 @@ function openReviewScreen(model) {
     const card = document.createElement('div');
     card.className = 'reviewer-card' + (rScore < 2.5 ? ' low' : '');
     card.innerHTML = `
-      <div class="reviewer-avatar" style="background:${r.color || '#555'}">${r.avatar || r.name[0]}</div>
+      <div class="reviewer-avatar${r.portrait && r.portrait.includes('/publications/') ? ' is-logo' : ''}" style="background:${r.portrait ? 'transparent' : (r.color || '#555')}">${r.portrait ? `<img src="${r.portrait}" alt="${r.name}" loading="lazy" onerror="this.parentElement.style.background='${r.color||'#555'}';this.parentElement.textContent='${r.avatar||r.name[0]}'">` : (r.avatar || r.name[0])}</div>
       <div class="reviewer-body">
         <div class="reviewer-name">${r.name}</div>
         <div class="reviewer-role">${role}</div>
