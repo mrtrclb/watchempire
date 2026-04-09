@@ -7323,6 +7323,30 @@ function renderModels() {
   renderCollabSection(grid);
 }
 
+// ── İŞBİRLİĞİ BANNER RENDER ──
+function renderCollabBanner(offer) {
+  const playerLogo = (window.LOGOS && window.LOGOS[Game.logoIndex || 0]) ? window.LOGOS[Game.logoIndex || 0] : null;
+  const playerSvg = playerLogo ? playerLogo.svg.replace(/width="56"/g,'width="100%"').replace(/height="56"/g,'height="100%"') : '';
+  const partnerSvg = offer.partnerSvg || '';
+  const banner = document.createElement('div');
+  banner.style.cssText = `
+    display:flex;align-items:center;justify-content:space-between;
+    background:#0a0806;border-bottom:1px solid rgba(196,151,58,0.15);
+    padding:10px 16px;gap:12px;min-height:64px;
+  `;
+  // Oyuncu logosu — sol
+  const playerWrap = document.createElement('div');
+  playerWrap.style.cssText = 'width:44px;height:44px;flex-shrink:0;display:flex;align-items:center;justify-content:center;';
+  playerWrap.innerHTML = playerSvg;
+  // Partner ikonu — sağ
+  const partnerWrap = document.createElement('div');
+  partnerWrap.style.cssText = 'width:44px;height:44px;flex-shrink:0;display:flex;align-items:center;justify-content:center;';
+  partnerWrap.innerHTML = partnerSvg;
+  banner.appendChild(playerWrap);
+  banner.appendChild(partnerWrap);
+  return banner;
+}
+
 // ── İŞBİRLİĞİ & TEKLİFLER RENDER ──
 function renderCollabSection(container) {
   const isTR = Game.lang === 'tr';
@@ -7377,8 +7401,11 @@ function renderCollabSection(container) {
     const canAfford = Game.cash >= o.invest;
 
     const card = document.createElement('div');
-    card.style.cssText = 'background:#1a100a;border:1px solid rgba(217,97,78,0.4);border-left:3px solid var(--rust);padding:10px 14px;margin-bottom:8px;';
-    card.innerHTML = `
+    card.style.cssText = 'background:#1a100a;border:1px solid rgba(217,97,78,0.4);border-left:3px solid var(--rust);overflow:hidden;margin-bottom:8px;';
+    card.appendChild(renderCollabBanner(o));
+    const lcInner = document.createElement('div');
+    lcInner.style.cssText = 'padding:10px 14px;';
+    lcInner.innerHTML = `
       <div style="font-size:9px;color:var(--rust);font-family:monospace;margin-bottom:4px;">⏰ ${isTR?'SON ŞANS — ':'LAST CHANCE — '}${daysLeft} ${isTR?'gün kaldı':'days left'}</div>
       <div style="font-size:9px;color:var(--slate);margin-bottom:5px;">${isTR?`Geçen sezon yanıtsız kaldı — bu sezonun ${o.lastChanceDeadlineDay}. gününe kadar kabul edebilirsin.`:`Left unanswered last season — you can still accept until Day ${o.lastChanceDeadlineDay} this season.`}</div>
       <div style="font-size:11px;color:var(--ink);line-height:1.4;margin-bottom:8px;">${isTR ? o.tr : o.en}</div>
@@ -7392,6 +7419,7 @@ function renderCollabSection(container) {
       <button onclick="lateAcceptExpiredOffer('${o.id}')" style="width:100%;background:${canAfford?'rgba(217,97,78,0.15)':'rgba(100,100,100,0.1)'};border:1px solid ${canAfford?'var(--rust)':'rgba(240,235,227,0.15)'};color:${canAfford?'var(--rust)':'var(--slate)'};padding:8px 0;font-size:11px;font-weight:700;cursor:${canAfford?'pointer':'not-allowed'};letter-spacing:0.05em;font-family:system-ui,sans-serif;">
         ${canAfford ? `⏰ ${isTR?'SON ŞANSI KULLAN':'USE LAST CHANCE'}` : `💸 ${isTR?'NAKİT YETERSİZ':'INSUFFICIENT CASH'}`}
       </button>`;
+    card.appendChild(lcInner);
     section.appendChild(card);
   });
 
@@ -7401,9 +7429,18 @@ function renderCollabSection(container) {
     const fansSign = o.fans >= 0 ? '+' : '';
     const repSign  = o.rep  >= 0 ? '+' : '';
     const card = document.createElement('div');
-    card.style.cssText = 'background:#0e1a0e;border:1px solid rgba(90,173,106,0.35);border-left:3px solid #5aad6a;padding:10px 14px;margin-bottom:8px;';
-    card.innerHTML = `
-      <div style="font-size:9px;color:#5aad6a;font-family:monospace;margin-bottom:4px;">⚙️ ${isTR?'DEVAM EDİYOR — ':'IN PROGRESS — '}${daysLeft} ${isTR?'gün kaldı':'days left'}</div>
+    card.style.cssText = 'background:#0e1a0e;border:1px solid rgba(90,173,106,0.35);border-left:3px solid #5aad6a;overflow:hidden;margin-bottom:8px;';
+    card.appendChild(renderCollabBanner(o));
+    const totalDays = o.resolveDay - (o.acceptedDay || (o.resolveDay - o.days));
+    const elapsed = Game.day - (o.acceptedDay || (o.resolveDay - o.days));
+    const progress = Math.min(100, Math.max(0, Math.round((elapsed / totalDays) * 100)));
+    const activeInner = document.createElement('div');
+    activeInner.style.cssText = 'padding:10px 14px;';
+    activeInner.innerHTML = `
+      <div style="font-size:9px;color:#5aad6a;font-family:monospace;margin-bottom:6px;">⚙️ ${isTR?'DEVAM EDİYOR — ':'IN PROGRESS — '}${daysLeft} ${isTR?'gün kaldı':'days left'}</div>
+      <div style="height:3px;background:rgba(90,173,106,0.15);border-radius:2px;margin-bottom:8px;overflow:hidden;">
+        <div style="height:100%;width:${progress}%;background:#5aad6a;border-radius:2px;"></div>
+      </div>
       <div style="font-size:11px;color:var(--ink);line-height:1.4;margin-bottom:6px;">${isTR ? o.tr : o.en}</div>
       <div style="display:flex;gap:10px;flex-wrap:wrap;font-size:10px;font-family:monospace;">
         <span style="color:var(--rust);">-$${formatNum(o.invest)}</span>
@@ -7411,6 +7448,7 @@ function renderCollabSection(container) {
         ${o.fans!==0?`<span style="color:${o.fans>0?'#5aad6a':'var(--rust)'};">${fansSign}${o.fans} ${isTR?'takipçi':'fans'}</span>`:''}
         ${o.rep!==0?`<span style="color:${o.rep>0?'#5aad6a':'var(--rust)'};">${repSign}${o.rep} ${isTR?'itibar':'rep'}</span>`:''}
       </div>`;
+    card.appendChild(activeInner);
     section.appendChild(card);
   });
 
@@ -7424,7 +7462,8 @@ function renderCollabSection(container) {
 
       const card = document.createElement('div');
       card.className = 'offer-card' + (isRisky ? ' offer-risky' : '');
-      card.innerHTML = `
+      card.appendChild(renderCollabBanner(o));
+      card.innerHTML += `
         ${isRisky ? `<div class="offer-pending-badge">⚠️ ${isTR?'RİSKLİ TEKLİF':'RISKY OFFER'}</div>` : `<div class="offer-pending-badge">🆕 ${isTR?'YENİ TEKLİF':'NEW OFFER'}</div>`}
         <div class="offer-desc">${isTR ? o.tr : o.en}</div>
         <div class="offer-metrics">
@@ -16373,97 +16412,97 @@ const COLLAB_OFFERS = [
 
   // ── DÜŞÜK SERMAYE ──
   {
-    id:'co_low_01', tier:'low',
+    id:'co_low_01', tier:'low', partnerSvg:`<svg viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="28" cy="28" r="14" stroke="#c4973a" stroke-width="2"/><line x1="28" y1="14" x2="28" y2="42" stroke="#c4973a" stroke-width="1.5"/><path d="M14 28 Q21 22 28 28 Q35 34 42 28" stroke="#c4973a" stroke-width="1.5" fill="none"/><path d="M14 28 Q21 34 28 28 Q35 22 42 28" stroke="#c4973a" stroke-width="1" fill="none" opacity="0.4"/></svg>`,
     tr:'Ülkenin en popüler tekstil firmalarından biri, kendi logosuyla satış yapabileceği mekanik saatler ürettirmek istiyor.',
     en:'One of the country\'s most popular textile firms wants to produce mechanical watches bearing their own logo.',
     invest:20000, reward:35000, fans:100, rep:-50, days:10
   },
   {
-    id:'co_low_02', tier:'low',
+    id:'co_low_02', tier:'low', partnerSvg:`<svg viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M28 8 L44 18 L44 38 L28 48 L12 38 L12 18 Z" stroke="#c4973a" stroke-width="2.5" stroke-linejoin="round"/><line x1="28" y1="8" x2="28" y2="48" stroke="#c4973a" stroke-width="1" opacity="0.4"/></svg>`,
     tr:'Yerel bir spor kulübü, taraftarlarına özel kol saati ürettirmek istiyor.',
     en:'A local sports club wants to produce special wristwatches for their fans.',
     invest:8000, reward:14000, fans:150, rep:10, days:7
   },
   {
-    id:'co_low_03', tier:'low',
+    id:'co_low_03', tier:'low', partnerSvg:`<svg viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="20" y="20" width="16" height="22" rx="8" stroke="#c4973a" stroke-width="2"/><line x1="28" y1="42" x2="28" y2="50" stroke="#c4973a" stroke-width="2" stroke-linecap="round"/><line x1="22" y1="50" x2="34" y2="50" stroke="#c4973a" stroke-width="1.5"/><path d="M14 16 Q28 10 42 16" stroke="#c4973a" stroke-width="1.5" fill="none" opacity="0.5" stroke-linecap="round"/><path d="M18 12 Q28 6 38 12" stroke="#c4973a" stroke-width="1" fill="none" opacity="0.3" stroke-linecap="round"/></svg>`,
     tr:'Bölgesel bir radyo istasyonu, yıl dönümü kutlaması için hatıra saati sipariş ediyor.',
     en:'A regional radio station is ordering commemorative watches for their anniversary celebration.',
     invest:12000, reward:20000, fans:80, rep:15, days:8
   },
   {
-    id:'co_low_04', tier:'low',
+    id:'co_low_04', tier:'low', partnerSvg:`<svg viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="12" y="14" width="32" height="34" stroke="#c4973a" stroke-width="2"/><rect x="22" y="34" width="12" height="14" stroke="#c4973a" stroke-width="1.5"/><rect x="18" y="20" width="6" height="6" stroke="#c4973a" stroke-width="1" opacity="0.6"/><rect x="32" y="20" width="6" height="6" stroke="#c4973a" stroke-width="1" opacity="0.6"/><rect x="18" y="28" width="6" height="6" stroke="#c4973a" stroke-width="1" opacity="0.6"/><rect x="32" y="28" width="6" height="6" stroke="#c4973a" stroke-width="1" opacity="0.6"/></svg>`,
     tr:'Küçük bir butik otel zinciri, misafirlerine hediye etmek üzere markalı saat istiyor.',
     en:'A small boutique hotel chain wants branded watches to gift to their guests.',
     invest:15000, reward:26000, fans:120, rep:25, days:10
   },
   {
-    id:'co_low_05', tier:'low',
+    id:'co_low_05', tier:'low', partnerSvg:`<svg viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg"><polygon points="28,6 33,21 50,21 37,31 42,47 28,37 14,47 19,31 6,21 23,21" stroke="#c4973a" stroke-width="2" fill="none" stroke-linejoin="round"/></svg>`,
     tr:'Popüler bir sosyal medya fenomeni, kendi koleksiyonu için sınırlı sayıda saat yaptırmak istiyor.',
     en:'A popular social media influencer wants a limited run of watches for their own collection.',
     invest:10000, reward:22000, fans:300, rep:-40, days:7
   },
   {
-    id:'co_low_06', tier:'low',
+    id:'co_low_06', tier:'low', partnerSvg:`<svg viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M14 24 Q14 18 28 18 Q42 18 42 24" stroke="#c4973a" stroke-width="2" fill="none" stroke-linecap="round"/><rect x="12" y="24" width="32" height="5" rx="1" stroke="#c4973a" stroke-width="1.5"/><rect x="12" y="30" width="32" height="5" rx="1" stroke="#c4973a" stroke-width="1.5"/><path d="M14 36 Q14 42 28 42 Q42 42 42 36" stroke="#c4973a" stroke-width="2" fill="none" stroke-linecap="round"/></svg>`,
     tr:'Tanınmış bir fast food zinciri, çalışanlarına yıllık ödül saati ürettirmek istiyor.',
     en:'A well-known fast food chain wants to produce annual award watches for their employees.',
     invest:18000, reward:30000, fans:60, rep:-30, days:10
   },
   {
-    id:'co_low_07', tier:'low',
+    id:'co_low_07', tier:'low', partnerSvg:`<svg viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M10 40 L10 24 Q28 14 46 24 L46 40" stroke="#c4973a" stroke-width="2" fill="none" stroke-linejoin="round"/><line x1="8" y1="40" x2="48" y2="40" stroke="#c4973a" stroke-width="2"/><rect x="22" y="28" width="12" height="12" stroke="#c4973a" stroke-width="1.5"/></svg>`,
     tr:'Yerel belediye, 50. kuruluş yıldönümü için toplu saat siparişi veriyor.',
     en:'The local municipality is placing a bulk order of watches for their 50th founding anniversary.',
     invest:20000, reward:34000, fans:90, rep:30, days:12
   },
   {
-    id:'co_low_08', tier:'low',
+    id:'co_low_08', tier:'low', partnerSvg:`<svg viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M28 8 L44 14 L44 30 C44 40 36 46 28 50 C20 46 12 40 12 30 L12 14 Z" stroke="#c4973a" stroke-width="2" fill="none" stroke-linejoin="round"/><path d="M20 28 L26 34 L36 22" stroke="#c4973a" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
     tr:'Ülke genelindeki bir sigorta şirketi, müşteri hediyesi olarak marka saati istiyor.',
     en:'A nationwide insurance company wants branded watches as customer gifts.',
     invest:25000, reward:42000, fans:110, rep:5, days:10
   },
   {
-    id:'co_low_09', tier:'low',
+    id:'co_low_09', tier:'low', partnerSvg:`<svg viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="10" y="24" width="36" height="24" stroke="#c4973a" stroke-width="2"/><path d="M8 24 L28 10 L48 24" stroke="#c4973a" stroke-width="2" fill="none" stroke-linejoin="round"/><rect x="22" y="34" width="12" height="14" stroke="#c4973a" stroke-width="1.5"/><line x1="16" y1="28" x2="16" y2="44" stroke="#c4973a" stroke-width="1.5"/><line x1="40" y1="28" x2="40" y2="44" stroke="#c4973a" stroke-width="1.5"/></svg>`,
     tr:'Bir üniversite, mezuniyet töreni için özel tasarım saat sipariş ediyor.',
     en:'A university is ordering custom-designed watches for their graduation ceremony.',
     invest:14000, reward:24000, fans:200, rep:35, days:10
   },
   {
-    id:'co_low_10', tier:'low',
+    id:'co_low_10', tier:'low', partnerSvg:`<svg viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8 30 L28 10 L48 30 L36 28 L28 48 L20 28 Z" stroke="#c4973a" stroke-width="2" fill="none" stroke-linejoin="round"/><line x1="18" y1="34" x2="38" y2="34" stroke="#c4973a" stroke-width="1" opacity="0.4"/></svg>`,
     tr:'Ülkede yeni açılan bir düşük bütçeli havayolu, logolu saat ürettirmek istiyor. Şirketin itibarı tartışmalı.',
     en:'A newly launched budget airline wants to produce logo watches. The company\'s reputation is controversial.',
     invest:22000, reward:40000, fans:180, rep:-70, days:10
   },
   {
-    id:'co_low_11', tier:'low',
+    id:'co_low_11', tier:'low', partnerSvg:`<svg viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="14" y="20" width="28" height="22" rx="2" stroke="#c4973a" stroke-width="2"/><path d="M20 20 L20 16 Q20 12 28 12 Q36 12 36 16 L36 20" stroke="#c4973a" stroke-width="2" fill="none"/><line x1="14" y1="30" x2="42" y2="30" stroke="#c4973a" stroke-width="1" opacity="0.5"/><circle cx="28" cy="30" r="3" stroke="#c4973a" stroke-width="1.5"/></svg>`,
     tr:'Bir kariyer koçluk platformu, mezunlarına verilen başarı saati için sipariş açıyor.',
     en:'A career coaching platform is ordering achievement watches to present to their graduates.',
     invest:9000, reward:16000, fans:130, rep:20, days:8
   },
   {
-    id:'co_low_12', tier:'low',
+    id:'co_low_12', tier:'low', partnerSvg:`<svg viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="16" y="8" width="24" height="32" rx="1" stroke="#c4973a" stroke-width="2"/><line x1="20" y1="16" x2="36" y2="16" stroke="#c4973a" stroke-width="1.5"/><line x1="20" y1="22" x2="36" y2="22" stroke="#c4973a" stroke-width="1"/><line x1="20" y1="28" x2="28" y2="28" stroke="#c4973a" stroke-width="1"/><path d="M16 40 L28 46 L40 40" stroke="#c4973a" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg>`,
     tr:'Tanınmış bir zincir kırtasiye markası, promosyon saati yaptırmak istiyor.',
     en:'A well-known stationery chain wants to produce promotional watches.',
     invest:11000, reward:18000, fans:70, rep:0, days:7
   },
   {
-    id:'co_low_13', tier:'low',
+    id:'co_low_13', tier:'low', partnerSvg:`<svg viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8 28 L28 12 L48 28" stroke="#c4973a" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/><rect x="14" y="28" width="28" height="20" stroke="#c4973a" stroke-width="2"/><rect x="22" y="34" width="12" height="14" stroke="#c4973a" stroke-width="1.5"/></svg>`,
     tr:'Bölgede büyüyen bir emlak şirketi, müşteri hediyesi olarak markalı saat istiyor.',
     en:'A growing regional real estate company wants branded watches as customer gifts.',
     invest:19000, reward:33000, fans:85, rep:10, days:10
   },
   {
-    id:'co_low_14', tier:'low',
+    id:'co_low_14', tier:'low', partnerSvg:`<svg viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="28" cy="28" r="20" stroke="#c4973a" stroke-width="2"/><path d="M36 22 Q32 16 28 16 Q20 16 18 24 Q16 32 20 38 Q24 44 32 42" stroke="#c4973a" stroke-width="2" fill="none" stroke-linecap="round"/></svg>`,
     tr:'Sevilen bir çizgi film karakterini lisanslayan firma, temalı saat ürettirmek istiyor. Sonradan karakterin telif hakları mahkemeye taşınıyor.',
     en:'A firm licensing a beloved cartoon character wants themed watches. The character\'s copyright later ends up in court.',
     invest:30000, reward:50000, fans:-100, rep:-80, days:12
   },
   {
-    id:'co_low_15', tier:'low',
+    id:'co_low_15', tier:'low', partnerSvg:`<svg viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="28" cy="28" r="18" stroke="#c4973a" stroke-width="2"/><line x1="10" y1="28" x2="46" y2="28" stroke="#c4973a" stroke-width="1"/><ellipse cx="28" cy="28" rx="8" ry="18" stroke="#c4973a" stroke-width="1.5" fill="none"/><line x1="15" y1="18" x2="41" y2="18" stroke="#c4973a" stroke-width="0.8" opacity="0.4"/><line x1="15" y1="38" x2="41" y2="38" stroke="#c4973a" stroke-width="0.8" opacity="0.4"/></svg>`,
     tr:'Küçük bir seyahat acentesi, tur paketlerine ek hediye olarak logolu saat eklemek istiyor.',
     en:'A small travel agency wants to add logo watches as bonus gifts to their tour packages.',
     invest:7000, reward:12000, fans:60, rep:5, days:7
   },
   {
-    id:'co_low_16', tier:'low',
+    id:'co_low_16', tier:'low', partnerSvg:`<svg viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="10" y="18" width="24" height="28" rx="2" stroke="#c4973a" stroke-width="2"/><path d="M34 22 L42 22 L44 26 L44 36 L38 36" stroke="#c4973a" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/><line x1="14" y1="28" x2="30" y2="28" stroke="#c4973a" stroke-width="1.5"/><rect x="16" y="36" width="12" height="8" stroke="#c4973a" stroke-width="1"/></svg>`,
     tr:'Küçük bir akaryakıt zinciri, çalışanlarına toplu saat hediyesi yaptırmak istiyor.',
     en:'A small fuel station chain wants to give bulk watch gifts to their employees.',
     invest:16000, reward:27000, fans:50, rep:-10, days:8
@@ -16471,97 +16510,97 @@ const COLLAB_OFFERS = [
 
   // ── ORTA SERMAYE ──
   {
-    id:'co_mid_01', tier:'mid',
+    id:'co_mid_01', tier:'mid', partnerSvg:`<svg viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="14" y="10" width="28" height="30" rx="8" stroke="#c4973a" stroke-width="2"/><line x1="14" y1="26" x2="42" y2="26" stroke="#c4973a" stroke-width="1.5"/><circle cx="20" cy="44" r="4" stroke="#c4973a" stroke-width="2"/><circle cx="36" cy="44" r="4" stroke="#c4973a" stroke-width="2"/><line x1="8" y1="44" x2="48" y2="44" stroke="#c4973a" stroke-width="1.5"/></svg>`,
     tr:'Ülkenin demiryolu ulaşım firması, tüm çalışanlarına hatıra saati ürettirmek istiyor.',
     en:'The country\'s railway transportation company wants to produce commemorative watches for all their staff.',
     invest:100000, reward:185000, fans:300, rep:20, days:10
   },
   {
-    id:'co_mid_02', tier:'mid',
+    id:'co_mid_02', tier:'mid', partnerSvg:`<svg viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg"><polygon points="28,8 48,20 48,22 8,22 8,20" stroke="#c4973a" stroke-width="1.5" fill="none"/><line x1="16" y1="22" x2="16" y2="42" stroke="#c4973a" stroke-width="2"/><line x1="24" y1="22" x2="24" y2="42" stroke="#c4973a" stroke-width="2"/><line x1="32" y1="22" x2="32" y2="42" stroke="#c4973a" stroke-width="2"/><line x1="40" y1="22" x2="40" y2="42" stroke="#c4973a" stroke-width="2"/><line x1="10" y1="42" x2="46" y2="42" stroke="#c4973a" stroke-width="2"/><line x1="8" y1="46" x2="48" y2="46" stroke="#c4973a" stroke-width="1.5"/></svg>`,
     tr:'Ülkenin önde gelen bankalarından biri, özel müşterilerine VIP hediye saati ürettirmek istiyor.',
     en:'One of the country\'s leading banks wants to produce VIP gift watches for their premium customers.',
     invest:90000, reward:165000, fans:250, rep:40, days:12
   },
   {
-    id:'co_mid_03', tier:'mid',
+    id:'co_mid_03', tier:'mid', partnerSvg:`<svg viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="28" cy="28" r="18" stroke="#c4973a" stroke-width="2"/><circle cx="28" cy="28" r="5" stroke="#c4973a" stroke-width="2"/><line x1="28" y1="10" x2="28" y2="23" stroke="#c4973a" stroke-width="2"/><line x1="28" y1="33" x2="28" y2="46" stroke="#c4973a" stroke-width="2"/><line x1="10" y1="28" x2="23" y2="28" stroke="#c4973a" stroke-width="2"/><line x1="33" y1="28" x2="46" y2="28" stroke="#c4973a" stroke-width="2"/></svg>`,
     tr:'Uluslararası bir otomobil markasının yerel distribütörü, araç alıcılarına hediye saat sipariş ediyor.',
     en:'The local distributor of an international car brand is ordering gift watches for vehicle buyers.',
     invest:120000, reward:220000, fans:320, rep:50, days:12
   },
   {
-    id:'co_mid_04', tier:'mid',
+    id:'co_mid_04', tier:'mid', partnerSvg:`<svg viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg"><polygon points="28,8 44,17 44,35 28,44 12,35 12,17" stroke="#c4973a" stroke-width="2" fill="none"/><circle cx="28" cy="26" r="5" stroke="#c4973a" stroke-width="1.5"/><line x1="28" y1="8" x2="28" y2="21" stroke="#c4973a" stroke-width="1" opacity="0.5"/><line x1="28" y1="31" x2="28" y2="44" stroke="#c4973a" stroke-width="1" opacity="0.5"/></svg>`,
     tr:'Bir teknoloji girişimi, çalışanlarına hisse senedi vesting saati ürettirmek istiyor. Startup sonradan iflas ediyor.',
     en:'A tech startup wants to produce equity vesting watches for their employees. The startup later goes bankrupt.',
     invest:85000, reward:160000, fans:-150, rep:-60, days:10
   },
   {
-    id:'co_mid_05', tier:'mid',
+    id:'co_mid_05', tier:'mid', partnerSvg:`<svg viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8 14 L14 14 L20 36 L44 36 L48 18 L14 18" stroke="#c4973a" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/><circle cx="24" cy="42" r="3" stroke="#c4973a" stroke-width="2"/><circle cx="40" cy="42" r="3" stroke="#c4973a" stroke-width="2"/></svg>`,
     tr:'Ülkenin en büyük süpermarket zinciri, sadakat programı ödülü olarak özel saat istiyor.',
     en:'The country\'s largest supermarket chain wants special watches as loyalty program rewards.',
     invest:150000, reward:270000, fans:400, rep:20, days:13
   },
   {
-    id:'co_mid_06', tier:'mid',
+    id:'co_mid_06', tier:'mid', partnerSvg:`<svg viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M14 42 Q14 28 28 28 Q42 28 42 14" stroke="#c4973a" stroke-width="2" fill="none" stroke-linecap="round"/><path d="M20 42 Q20 32 28 32 Q36 32 36 14" stroke="#c4973a" stroke-width="1.5" fill="none" stroke-linecap="round" opacity="0.5"/><circle cx="42" cy="14" r="4" stroke="#c4973a" stroke-width="2"/></svg>`,
     tr:'Büyük bir telekomünikasyon şirketi, abone hediyesi kampanyası için sınırlı seri saat ürettiriyor.',
     en:'A major telecommunications company is producing a limited series watch for their subscriber gift campaign.',
     invest:130000, reward:235000, fans:350, rep:15, days:12
   },
   {
-    id:'co_mid_07', tier:'mid',
+    id:'co_mid_07', tier:'mid', partnerSvg:`<svg viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="8" y="12" width="40" height="32" rx="2" stroke="#c4973a" stroke-width="2"/><line x1="16" y1="22" x2="40" y2="22" stroke="#c4973a" stroke-width="1.5"/><line x1="16" y1="28" x2="40" y2="28" stroke="#c4973a" stroke-width="1.5"/><line x1="16" y1="34" x2="30" y2="34" stroke="#c4973a" stroke-width="1.5"/></svg>`,
     tr:'Ülke çapında yayın yapan bir haber kanalı, yıl dönümü koleksiyonu için saat siparişi veriyor.',
     en:'A nationwide news channel is placing a watch order for their anniversary collection.',
     invest:95000, reward:170000, fans:200, rep:30, days:10
   },
   {
-    id:'co_mid_08', tier:'mid',
+    id:'co_mid_08', tier:'mid', partnerSvg:`<svg viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="22" y="8" width="12" height="40" rx="6" stroke="#c4973a" stroke-width="2"/><line x1="22" y1="28" x2="34" y2="28" stroke="#c4973a" stroke-width="1.5"/><line x1="28" y1="14" x2="28" y2="42" stroke="#c4973a" stroke-width="1" opacity="0.4"/></svg>`,
     tr:'Köklü bir ilaç firması, doktor ve eczacılara yönelik markalı saat hediye etmek istiyor. Firma ilerleyen günlerde hileli ilaç satışı skandalına karışıyor.',
     en:'A long-established pharmaceutical company wants to give branded watches to doctors and pharmacists. The firm soon gets caught up in a fraudulent drug sales scandal.',
     invest:110000, reward:195000, fans:-200, rep:-120, days:12
   },
   {
-    id:'co_mid_09', tier:'mid',
+    id:'co_mid_09', tier:'mid', partnerSvg:`<svg viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M20 14 L16 22 L40 22 L36 14 Z" stroke="#c4973a" stroke-width="1.5" fill="none"/><rect x="12" y="22" width="32" height="22" rx="1" stroke="#c4973a" stroke-width="2"/><path d="M22 22 Q22 30 28 30 Q34 30 34 22" stroke="#c4973a" stroke-width="1.5" fill="none"/></svg>`,
     tr:'Uluslararası bir lüks otel zinciri, konsiyerj personeline özel üniforma saati yaptırmak istiyor.',
     en:'An international luxury hotel chain wants to produce special uniform watches for their concierge staff.',
     invest:140000, reward:260000, fans:280, rep:60, days:13
   },
   {
-    id:'co_mid_10', tier:'mid',
+    id:'co_mid_10', tier:'mid', partnerSvg:`<svg viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="12" y="8" width="32" height="40" rx="2" stroke="#c4973a" stroke-width="2"/><line x1="18" y1="18" x2="38" y2="18" stroke="#c4973a" stroke-width="2"/><line x1="18" y1="24" x2="38" y2="24" stroke="#c4973a" stroke-width="1"/><line x1="18" y1="30" x2="30" y2="30" stroke="#c4973a" stroke-width="1"/><rect x="18" y="34" width="12" height="8" stroke="#c4973a" stroke-width="1"/></svg>`,
     tr:'Tanınmış bir moda dergisi, imzalı özel saat koleksiyonu için üretim ortağı arıyor.',
     en:'A renowned fashion magazine is looking for a production partner for a signed special watch collection.',
     invest:175000, reward:320000, fans:500, rep:70, days:15
   },
   {
-    id:'co_mid_11', tier:'mid',
+    id:'co_mid_11', tier:'mid', partnerSvg:`<svg viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg"><polygon points="32,6 20,30 28,30 24,50 36,26 28,26" stroke="#c4973a" stroke-width="2" fill="none" stroke-linejoin="round"/></svg>`,
     tr:'Ülkenin önde gelen bir enerji şirketi, yönetim kurulu hediyesi olarak prestij saat siparişi veriyor.',
     en:'One of the country\'s leading energy companies is ordering prestige watches as board of directors gifts.',
     invest:160000, reward:290000, fans:180, rep:45, days:12
   },
   {
-    id:'co_mid_12', tier:'mid',
+    id:'co_mid_12', tier:'mid', partnerSvg:`<svg viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="28" cy="28" r="20" stroke="#c4973a" stroke-width="2"/><polygon points="28,14 31,23 41,23 33,29 36,38 28,32 20,38 23,29 15,23 25,23" stroke="#c4973a" stroke-width="1.5" fill="none"/></svg>`,
     tr:'Bir uluslararası spor organizasyonu, gönüllülerine katılım saati ürettirmek istiyor.',
     en:'An international sports organization wants to produce participation watches for their volunteers.',
     invest:80000, reward:145000, fans:600, rep:80, days:10
   },
   {
-    id:'co_mid_13', tier:'mid',
+    id:'co_mid_13', tier:'mid', partnerSvg:`<svg viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="8" y="18" width="40" height="28" rx="2" stroke="#c4973a" stroke-width="2"/><path d="M18 18 L18 14 Q18 10 28 10 Q38 10 38 14 L38 18" stroke="#c4973a" stroke-width="2" fill="none"/><line x1="8" y1="26" x2="48" y2="26" stroke="#c4973a" stroke-width="1" opacity="0.5"/></svg>`,
     tr:'Ülkenin dev bir e-ticaret platformu, premium üyelerine özel sınırlı seri saat hediye etmek istiyor.',
     en:'The country\'s giant e-commerce platform wants to gift limited series watches to their premium members.',
     invest:190000, reward:345000, fans:450, rep:25, days:13
   },
   {
-    id:'co_mid_14', tier:'mid',
+    id:'co_mid_14', tier:'mid', partnerSvg:`<svg viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="10" y="14" width="36" height="28" rx="4" stroke="#c4973a" stroke-width="2"/><line x1="10" y1="22" x2="46" y2="22" stroke="#c4973a" stroke-width="1.5"/><rect x="16" y="28" width="8" height="6" rx="1" stroke="#c4973a" stroke-width="1.5"/><line x1="30" y1="30" x2="40" y2="30" stroke="#c4973a" stroke-width="1.5"/></svg>`,
     tr:'Bir fintech girişimi, yatırımcılarına özel anı saati ürettirmek istiyor. Şirket daha sonra düzenleyici soruşturmaya maruz kalıyor.',
     en:'A fintech startup wants to produce special commemorative watches for their investors. The company later faces regulatory investigation.',
     invest:145000, reward:265000, fans:-300, rep:-100, days:12
   },
   {
-    id:'co_mid_15', tier:'mid',
+    id:'co_mid_15', tier:'mid', partnerSvg:`<svg viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="10" y="24" width="36" height="24" stroke="#c4973a" stroke-width="2"/><path d="M8 24 L28 10 L48 24" stroke="#c4973a" stroke-width="2" fill="none" stroke-linejoin="round"/><rect x="22" y="34" width="12" height="14" stroke="#c4973a" stroke-width="1.5"/><line x1="16" y1="28" x2="16" y2="44" stroke="#c4973a" stroke-width="1.5"/><line x1="40" y1="28" x2="40" y2="44" stroke="#c4973a" stroke-width="1.5"/></svg>`,
     tr:'Ülkenin en köklü üniversitelerinden biri, 150. yıl kutlamaları için sınırlı sayıda koleksiyon saat siparişi veriyor.',
     en:'One of the country\'s most prestigious universities is ordering a limited collection of watches for their 150th anniversary celebrations.',
     invest:105000, reward:190000, fans:350, rep:90, days:13
   },
   {
-    id:'co_mid_16', tier:'mid',
+    id:'co_mid_16', tier:'mid', partnerSvg:`<svg viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="8" y="30" width="40" height="16" rx="1" stroke="#c4973a" stroke-width="2"/><rect x="16" y="20" width="10" height="10" stroke="#c4973a" stroke-width="1.5"/><rect x="30" y="16" width="12" height="14" stroke="#c4973a" stroke-width="1.5"/><line x1="8" y1="30" x2="48" y2="30" stroke="#c4973a" stroke-width="1" opacity="0.4"/></svg>`,
     tr:'Ülkenin büyük bir inşaat holdingi, çalışanlarına toplu saat siparişi veriyor.',
     en:'A large construction holding company is placing a bulk watch order for their employees.',
     invest:100000, reward:180000, fans:150, rep:10, days:10
@@ -16569,97 +16608,97 @@ const COLLAB_OFFERS = [
 
   // ── YÜKSEK SERMAYE ──
   {
-    id:'co_high_01', tier:'high',
+    id:'co_high_01', tier:'high', partnerSvg:`<svg viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="28" cy="28" r="18" stroke="#c4973a" stroke-width="2"/><path d="M20 22 Q20 18 28 18 Q36 18 36 24 Q36 30 28 30" stroke="#c4973a" stroke-width="2" fill="none" stroke-linecap="round"/><circle cx="28" cy="38" r="2.5" fill="#c4973a"/></svg>`,
     tr:'Köklü rakiplerinden biri, piyasaya sunacağı yeni bir saat modelinin mekanizması için senden fason üretim talep ediyor.',
     en:'One of your established rivals is requesting OEM production from you for the mechanism of a new watch model they plan to launch.',
     invest:200000, reward:385000, fans:-200, rep:-150, days:10
   },
   {
-    id:'co_high_02', tier:'high',
+    id:'co_high_02', tier:'high', partnerSvg:`<svg viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="28" cy="28" r="18" stroke="#c4973a" stroke-width="2"/><circle cx="28" cy="28" r="5" stroke="#c4973a" stroke-width="2"/><line x1="28" y1="10" x2="28" y2="23" stroke="#c4973a" stroke-width="2"/><line x1="28" y1="33" x2="28" y2="46" stroke="#c4973a" stroke-width="2"/><line x1="10" y1="28" x2="23" y2="28" stroke="#c4973a" stroke-width="2"/><line x1="33" y1="28" x2="46" y2="28" stroke="#c4973a" stroke-width="2"/></svg>`,
     tr:'Dünyanın en prestijli otomobil markalarından biriyle ortak koleksiyon üretimi için anlaşma teklifi geliyor.',
     en:'An offer arrives for a joint collection production with one of the world\'s most prestigious car brands.',
     invest:350000, reward:680000, fans:800, rep:120, days:15
   },
   {
-    id:'co_high_03', tier:'high',
+    id:'co_high_03', tier:'high', partnerSvg:`<svg viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M28 6 L44 12 L44 28 C44 38 36 44 28 50 C20 44 12 38 12 28 L12 12 Z" stroke="#c4973a" stroke-width="2" fill="none"/><line x1="28" y1="18" x2="28" y2="36" stroke="#c4973a" stroke-width="2" stroke-linecap="round"/><line x1="20" y1="26" x2="36" y2="26" stroke="#c4973a" stroke-width="2" stroke-linecap="round"/></svg>`,
     tr:'Bir savunma sanayii firması, askeri personel için fonksiyonel taktik saat ürettirmek istiyor. Sözleşme kamuoyuna sızdığında tartışma yaratıyor.',
     en:'A defense industry firm wants to produce functional tactical watches for military personnel. When the contract leaks to the public, it sparks controversy.',
     invest:400000, reward:750000, fans:-500, rep:-200, days:13
   },
   {
-    id:'co_high_04', tier:'high',
+    id:'co_high_04', tier:'high', partnerSvg:`<svg viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M28 8 L34 24 L28 20 L22 24 Z" stroke="#c4973a" stroke-width="2" fill="none" stroke-linejoin="round"/><path d="M22 24 L18 38 L28 34 L38 38 L34 24" stroke="#c4973a" stroke-width="2" fill="none" stroke-linejoin="round"/><line x1="18" y1="38" x2="16" y2="44" stroke="#c4973a" stroke-width="2" stroke-linecap="round"/><line x1="38" y1="38" x2="40" y2="44" stroke="#c4973a" stroke-width="2" stroke-linecap="round"/><circle cx="28" cy="28" r="3" stroke="#c4973a" stroke-width="1.5"/></svg>`,
     tr:'Uluslararası bir uzay teknolojileri şirketi, astronot saati koleksiyonu için ortak üretim istiyor.',
     en:'An international space technology company wants joint production for an astronaut watch collection.',
     invest:500000, reward:980000, fans:1200, rep:200, days:15
   },
   {
-    id:'co_high_05', tier:'high',
+    id:'co_high_05', tier:'high', partnerSvg:`<svg viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="28" cy="28" r="18" stroke="#c4973a" stroke-width="2"/><line x1="28" y1="16" x2="28" y2="28" stroke="#c4973a" stroke-width="2.5" stroke-linecap="round"/><line x1="28" y1="28" x2="38" y2="22" stroke="#c4973a" stroke-width="2" stroke-linecap="round"/><circle cx="28" cy="28" r="3" fill="#c4973a"/></svg>`,
     tr:'Ülkenin en büyük holding grubunun CEO\'su, kendi adına sınırlı özel koleksiyon sipariş ediyor. CEO daha sonra yolsuzluk suçlamasıyla gündem oluyor.',
     en:'The CEO of the country\'s largest holding group orders a limited personal collection in his name. The CEO later makes headlines on corruption charges.',
     invest:300000, reward:580000, fans:-400, rep:-300, days:12
   },
   {
-    id:'co_high_06', tier:'high',
+    id:'co_high_06', tier:'high', partnerSvg:`<svg viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8 28 C12 16 20 12 28 14 C36 16 44 12 48 20 C44 32 36 38 28 36 C20 34 12 38 8 28 Z" stroke="#c4973a" stroke-width="2" fill="none"/><line x1="28" y1="14" x2="28" y2="36" stroke="#c4973a" stroke-width="1" opacity="0.4"/></svg>`,
     tr:'Dünyanın önde gelen bir spor markasıyla ortak koleksiyon üretimi için lisans anlaşması teklifi geliyor.',
     en:'A licensing deal offer arrives for joint collection production with one of the world\'s leading sports brands.',
     invest:450000, reward:860000, fans:1000, rep:150, days:15
   },
   {
-    id:'co_high_07', tier:'high',
+    id:'co_high_07', tier:'high', partnerSvg:`<svg viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg"><polygon points="28,6 50,18 50,38 28,50 6,38 6,18" stroke="#c4973a" stroke-width="2" fill="none"/><path d="M22 20 L22 36 M26 20 C32 20 36 22 36 26 C36 30 32 32 26 32 L22 32 M22 28 L34 28" stroke="#c4973a" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg>`,
     tr:'Küresel bir kripto para borsası, kurumsal hediye saati ürettirmek istiyor. Borsa birkaç gün sonra hackleniyor ve skandal patlak veriyor.',
     en:'A global cryptocurrency exchange wants to produce corporate gift watches. The exchange gets hacked a few days later and scandal erupts.',
     invest:380000, reward:700000, fans:-600, rep:-350, days:13
   },
   {
-    id:'co_high_08', tier:'high',
+    id:'co_high_08', tier:'high', partnerSvg:`<svg viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="28" cy="28" r="20" stroke="#c4973a" stroke-width="2"/><polygon points="28,14 31,23 41,23 33,29 36,38 28,32 20,38 23,29 15,23 25,23" stroke="#c4973a" stroke-width="1.5" fill="none"/></svg>`,
     tr:'Ülkenin milli takımı, büyük bir turnuva öncesi özel forma saati koleksiyonu ürettirmek istiyor.',
     en:'The national team wants to produce a special jersey watch collection ahead of a major tournament.',
     invest:280000, reward:530000, fans:900, rep:100, days:12
   },
   {
-    id:'co_high_09', tier:'high',
+    id:'co_high_09', tier:'high', partnerSvg:`<svg viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M22 38 L22 16 L42 12 L42 34" stroke="#c4973a" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/><circle cx="18" cy="40" r="6" stroke="#c4973a" stroke-width="2"/><circle cx="38" cy="36" r="6" stroke="#c4973a" stroke-width="2"/></svg>`,
     tr:'Prestijli bir müzik festivali, VIP katılımcılara özel sınırlı koleksiyon saat hediye etmek istiyor.',
     en:'A prestigious music festival wants to gift a limited collection watch to VIP attendees.',
     invest:320000, reward:615000, fans:700, rep:80, days:12
   },
   {
-    id:'co_high_10', tier:'high',
+    id:'co_high_10', tier:'high', partnerSvg:`<svg viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M20 10 L10 20 L20 24 L20 46 L36 46 L36 24 L46 20 L36 10 Q32 16 28 16 Q24 16 20 10 Z" stroke="#c4973a" stroke-width="2" fill="none" stroke-linejoin="round"/></svg>`,
     tr:'Uluslararası bir lüks moda evi, senin teknik uzmanlığınla kapsül koleksiyon üretimi için ortak olmak istiyor.',
     en:'An international luxury fashion house wants to partner with your technical expertise to produce a capsule collection.',
     invest:600000, reward:1150000, fans:1500, rep:250, days:15
   },
   {
-    id:'co_high_11', tier:'high',
+    id:'co_high_11', tier:'high', partnerSvg:`<svg viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="28" cy="28" r="14" stroke="#c4973a" stroke-width="2"/><circle cx="28" cy="22" r="5" stroke="#c4973a" stroke-width="1.5"/><path d="M18 38 Q18 30 28 30 Q38 30 38 38" stroke="#c4973a" stroke-width="1.5" fill="none"/><line x1="28" y1="6" x2="28" y2="14" stroke="#c4973a" stroke-width="1.5" opacity="0.5"/></svg>`,
     tr:'Bir hükümet ajansı, diplomatik hediye saati programı için fason üretim sözleşmesi teklif ediyor. Ajanın bağlantılı olduğu lobi skandalı patlak veriyor.',
     en:'A government agency offers an OEM production contract for a diplomatic gift watch program. A lobbying scandal linked to the agency erupts.',
     invest:420000, reward:790000, fans:-700, rep:-280, days:13
   },
   {
-    id:'co_high_12', tier:'high',
+    id:'co_high_12', tier:'high', partnerSvg:`<svg viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg"><polygon points="28,8 44,17 44,35 28,44 12,35 12,17" stroke="#c4973a" stroke-width="2" fill="none"/><circle cx="28" cy="26" r="5" stroke="#c4973a" stroke-width="1.5"/><line x1="28" y1="8" x2="28" y2="21" stroke="#c4973a" stroke-width="1" opacity="0.5"/><line x1="28" y1="31" x2="28" y2="44" stroke="#c4973a" stroke-width="1" opacity="0.5"/></svg>`,
     tr:'Dünyanın önde gelen bir teknoloji devinin akıllı saat modeli için mekanik modül ortaklığı teklifi geliyor.',
     en:'An offer arrives for a mechanical module partnership for a leading global tech giant\'s smartwatch model.',
     invest:700000, reward:1350000, fans:2000, rep:300, days:15
   },
   {
-    id:'co_high_13', tier:'high',
+    id:'co_high_13', tier:'high', partnerSvg:`<svg viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="8" y="12" width="40" height="32" rx="2" stroke="#c4973a" stroke-width="2"/><rect x="8" y="12" width="8" height="32" stroke="#c4973a" stroke-width="1" opacity="0.5"/><rect x="40" y="12" width="8" height="32" stroke="#c4973a" stroke-width="1" opacity="0.5"/><line x1="16" y1="16" x2="16" y2="44" stroke="#c4973a" stroke-width="1" opacity="0.3"/><line x1="40" y1="16" x2="40" y2="44" stroke="#c4973a" stroke-width="1" opacity="0.3"/><polygon points="22,22 22,34 36,28" stroke="#c4973a" stroke-width="1.5" fill="none"/></svg>`,
     tr:'Uluslararası bir film stüdyosu, yeni filminin tanıtımı için sınırlı seri karakter saati ürettirmek istiyor.',
     en:'An international film studio wants to produce a limited series character watch to promote their new film.',
     invest:250000, reward:480000, fans:800, rep:50, days:12
   },
   {
-    id:'co_high_14', tier:'high',
+    id:'co_high_14', tier:'high', partnerSvg:`<svg viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M28 8 C24 16 16 20 16 30 C16 38 22 44 28 44 C34 44 40 38 40 30 C40 20 32 16 28 8 Z" stroke="#c4973a" stroke-width="2" fill="none"/><line x1="28" y1="28" x2="28" y2="38" stroke="#c4973a" stroke-width="1.5" opacity="0.5" stroke-linecap="round"/></svg>`,
     tr:'Büyük bir petrol şirketi, yöneticilere özel koleksiyon saat siparişi veriyor. Şirketin çevre ihlali davası medyaya düşünce tepki geliyor.',
     en:'A major oil company orders a special collection watch for executives. When the company\'s environmental violation case hits the media, backlash follows.',
     invest:360000, reward:680000, fans:-400, rep:-200, days:13
   },
   {
-    id:'co_high_15', tier:'high',
+    id:'co_high_15', tier:'high', partnerSvg:`<svg viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="28" cy="28" r="18" stroke="#c4973a" stroke-width="2"/><path d="M20 22 Q20 18 28 18 Q36 18 36 24 Q36 30 28 30" stroke="#c4973a" stroke-width="2" fill="none" stroke-linecap="round"/><circle cx="28" cy="38" r="2.5" fill="#c4973a"/></svg>`,
     tr:'Köklü rakiplerinden biri, yeni sezon koleksiyonu için senin tasarım ekibinle birlikte çalışmak istiyor.',
     en:'One of your established rivals wants to work alongside your design team for their new season collection.',
     invest:480000, reward:920000, fans:600, rep:-100, days:15
   },
   {
-    id:'co_high_16', tier:'high',
+    id:'co_high_16', tier:'high', partnerSvg:`<svg viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg"><line x1="18" y1="18" x2="18" y2="44" stroke="#c4973a" stroke-width="2.5"/><line x1="28" y1="14" x2="28" y2="44" stroke="#c4973a" stroke-width="2.5"/><line x1="38" y1="18" x2="38" y2="44" stroke="#c4973a" stroke-width="2.5"/><line x1="10" y1="44" x2="46" y2="44" stroke="#c4973a" stroke-width="2"/><polygon points="28,6 46,18 10,18" stroke="#c4973a" stroke-width="1.5" fill="none"/></svg>`,
     tr:'Ülkenin en prestijli müzesi, 100. yıl kutlamaları için müze koleksiyonundan ilham alan sınırlı seri saat siparişi veriyor.',
     en:'The country\'s most prestigious museum is ordering a limited series watch inspired by their museum collection for 100th anniversary celebrations.',
     invest:290000, reward:555000, fans:1100, rep:180, days:13
@@ -16667,61 +16706,61 @@ const COLLAB_OFFERS = [
 
   // ── DÜŞÜK SERMAYE — EK TEKLİFLER ──
   {
-    id:'co_low_17', tier:'low',
+    id:'co_low_17', tier:'low', partnerSvg:`<svg viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="22" y="12" width="12" height="20" rx="6" stroke="#c4973a" stroke-width="2"/><path d="M16 28 Q16 40 28 40 Q40 40 40 28" stroke="#c4973a" stroke-width="2" fill="none" stroke-linecap="round"/><line x1="28" y1="40" x2="28" y2="48" stroke="#c4973a" stroke-width="2" stroke-linecap="round"/><line x1="22" y1="48" x2="34" y2="48" stroke="#c4973a" stroke-width="1.5"/></svg>`,
     tr:'Ülkenin sevilen bir podcast kanalı, dinleyicilerine özel sınırlı saat yaptırmak istiyor.',
     en:'One of the country\'s beloved podcast channels wants to produce a limited watch for their listeners.',
     invest:13000, reward:22000, fans:220, rep:15, days:8
   },
   {
-    id:'co_low_18', tier:'low',
+    id:'co_low_18', tier:'low', partnerSvg:`<svg viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg"><ellipse cx="28" cy="30" rx="12" ry="16" stroke="#c4973a" stroke-width="2"/><rect x="24" y="14" width="8" height="6" rx="1" stroke="#c4973a" stroke-width="1.5"/><line x1="16" y1="28" x2="40" y2="28" stroke="#c4973a" stroke-width="1" opacity="0.4"/></svg>`,
     tr:'Bir kozmetik markası, yıllık kampanya hediyesi olarak logolu saat sipariş ediyor.',
     en:'A cosmetics brand is ordering logo watches as their annual campaign gift.',
     invest:10000, reward:17000, fans:90, rep:0, days:7
   },
   {
-    id:'co_low_19', tier:'low',
+    id:'co_low_19', tier:'low', partnerSvg:`<svg viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="12" y="12" width="32" height="32" rx="3" stroke="#c4973a" stroke-width="2"/><line x1="28" y1="20" x2="28" y2="36" stroke="#c4973a" stroke-width="2.5" stroke-linecap="round"/><line x1="20" y1="28" x2="36" y2="28" stroke="#c4973a" stroke-width="2.5" stroke-linecap="round"/></svg>`,
     tr:'Bölgenin en büyük eczane zinciri, eczacılara yönelik meslek saati ürettirmek istiyor.',
     en:'The region\'s largest pharmacy chain wants to produce a professional watch for pharmacists.',
     invest:17000, reward:29000, fans:70, rep:20, days:10
   },
   {
-    id:'co_low_20', tier:'low',
+    id:'co_low_20', tier:'low', partnerSvg:`<svg viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M28 48 C28 36 12 20 10 10 C20 12 36 28 28 48z" stroke="#c4973a" stroke-width="2" fill="none"/><path d="M28 48 C28 36 44 20 46 10 C36 12 20 28 28 48z" stroke="#c4973a" stroke-width="2" fill="none"/><line x1="28" y1="48" x2="28" y2="22" stroke="#c4973a" stroke-width="1" opacity="0.4" stroke-linecap="round"/></svg>`,
     tr:'Küçük bir çevre derneği, bağış kampanyası için özel saat yaptırmak istiyor. Dernek sonradan usulsüzlük nedeniyle kapatılıyor.',
     en:'A small environmental association wants a custom watch for their donation campaign. The association is later shut down for misconduct.',
     invest:9000, reward:16000, fans:-80, rep:-60, days:8
   },
   {
-    id:'co_low_21', tier:'low',
+    id:'co_low_21', tier:'low', partnerSvg:`<svg viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="10" y="18" width="36" height="22" rx="8" stroke="#c4973a" stroke-width="2"/><line x1="20" y1="27" x2="20" y2="31" stroke="#c4973a" stroke-width="2" stroke-linecap="round"/><line x1="18" y1="29" x2="22" y2="29" stroke="#c4973a" stroke-width="2" stroke-linecap="round"/><circle cx="34" cy="26" r="2" fill="#c4973a" opacity="0.8"/><circle cx="38" cy="30" r="2" fill="#c4973a" opacity="0.8"/></svg>`,
     tr:'Tanınmış bir oyun stüdyosu, oyuncularına hatıra saati dağıtmak istiyor.',
     en:'A well-known game studio wants to distribute commemorative watches to their players.',
     invest:14000, reward:25000, fans:280, rep:10, days:9
   },
   {
-    id:'co_low_22', tier:'low',
+    id:'co_low_22', tier:'low', partnerSvg:`<svg viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M28 46 C28 30 14 18 10 8 C22 10 36 24 28 46 Z" stroke="#c4973a" stroke-width="2" fill="none"/><path d="M28 46 C28 32 38 22 46 14" stroke="#c4973a" stroke-width="1.5" fill="none" opacity="0.6" stroke-linecap="round"/><line x1="28" y1="46" x2="28" y2="50" stroke="#c4973a" stroke-width="2" stroke-linecap="round"/></svg>`,
     tr:'Bir tarım kooperatifi, üyelerine yıllık ödül saati yaptırmak istiyor.',
     en:'An agricultural cooperative wants to produce an annual award watch for their members.',
     invest:11000, reward:18000, fans:50, rep:12, days:7
   },
   {
-    id:'co_low_23', tier:'low',
+    id:'co_low_23', tier:'low', partnerSvg:`<svg viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="8" y="10" width="40" height="36" rx="2" stroke="#c4973a" stroke-width="2"/><line x1="16" y1="18" x2="40" y2="18" stroke="#c4973a" stroke-width="2"/><line x1="16" y1="24" x2="40" y2="24" stroke="#c4973a" stroke-width="1"/><line x1="16" y1="30" x2="32" y2="30" stroke="#c4973a" stroke-width="1"/><rect x="16" y="34" width="10" height="6" stroke="#c4973a" stroke-width="1"/></svg>`,
     tr:'Ülkenin köklü bir gazetesi, abone ödülü olarak markalı saat dağıtmak istiyor.',
     en:'One of the country\'s long-established newspapers wants to distribute branded watches as subscriber rewards.',
     invest:16000, reward:27000, fans:110, rep:8, days:9
   },
   {
-    id:'co_low_24', tier:'low',
+    id:'co_low_24', tier:'low', partnerSvg:`<svg viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M28 46 C16 38 8 28 10 18 C12 12 18 10 24 14 C26 16 28 18 28 18 C28 18 30 16 32 14 C38 10 44 12 46 18 C48 28 40 38 28 46 Z" stroke="#c4973a" stroke-width="2" fill="none"/></svg>`,
     tr:'Bir yoga & wellness merkezi zinciri, üyelerine özel minimalist saat yaptırmak istiyor.',
     en:'A yoga & wellness centre chain wants to produce a special minimalist watch for their members.',
     invest:12000, reward:21000, fans:160, rep:22, days:8
   },
   {
-    id:'co_low_25', tier:'low',
+    id:'co_low_25', tier:'low', partnerSvg:`<svg viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="6" y="22" width="32" height="20" rx="2" stroke="#c4973a" stroke-width="2"/><path d="M38 26 L44 26 L50 32 L50 42 L38 42" stroke="#c4973a" stroke-width="2" fill="none" stroke-linejoin="round"/><circle cx="18" cy="44" r="4" stroke="#c4973a" stroke-width="2"/><circle cx="42" cy="44" r="4" stroke="#c4973a" stroke-width="2"/><rect x="14" y="14" width="16" height="8" rx="1" stroke="#c4973a" stroke-width="1.5"/></svg>`,
     tr:'Hızla büyüyen bir kurye şirketi, teslimatçılarına toplu saat siparişi veriyor.',
     en:'A fast-growing courier company is placing a bulk watch order for their delivery staff.',
     invest:20000, reward:34000, fans:40, rep:-15, days:10
   },
   {
-    id:'co_low_26', tier:'low',
+    id:'co_low_26', tier:'low', partnerSvg:`<svg viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="32" cy="12" r="5" stroke="#c4973a" stroke-width="2"/><path d="M32 17 L28 30 L20 38" stroke="#c4973a" stroke-width="2" fill="none" stroke-linecap="round"/><path d="M28 30 L36 40" stroke="#c4973a" stroke-width="2" fill="none" stroke-linecap="round"/><path d="M32 17 L38 24 L46 22" stroke="#c4973a" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
     tr:'Ülkenin popüler bir dans okulu zinciri, mezuniyet töreni için özel saat istiyor.',
     en:'A popular dance school chain in the country wants a special watch for their graduation ceremony.',
     invest:8000, reward:14000, fans:180, rep:18, days:7
@@ -16729,61 +16768,61 @@ const COLLAB_OFFERS = [
 
   // ── ORTA SERMAYE — EK TEKLİFLER ──
   {
-    id:'co_mid_17', tier:'mid',
+    id:'co_mid_17', tier:'mid', partnerSvg:`<svg viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8 30 L28 10 L48 30 L36 28 L28 48 L20 28 Z" stroke="#c4973a" stroke-width="2" fill="none" stroke-linejoin="round"/><line x1="18" y1="34" x2="38" y2="34" stroke="#c4973a" stroke-width="1" opacity="0.4"/></svg>`,
     tr:'Ülkenin en büyük havayolu şirketi, iş sınıfı yolcularına ikram saati ürettirmek istiyor.',
     en:'The country\'s largest airline wants to produce a complimentary watch for business class passengers.',
     invest:180000, reward:330000, fans:400, rep:65, days:14
   },
   {
-    id:'co_mid_18', tier:'mid',
+    id:'co_mid_18', tier:'mid', partnerSvg:`<svg viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg"><polygon points="28,8 48,20 48,48 8,48 8,20" stroke="#c4973a" stroke-width="2" fill="none"/><line x1="28" y1="8" x2="28" y2="48" stroke="#c4973a" stroke-width="1" opacity="0.4"/><rect x="20" y="34" width="16" height="14" stroke="#c4973a" stroke-width="1.5"/></svg>`,
     tr:'Uluslararası bir mimarlık firması, proje tamamlama hediyesi olarak özel saat sipariş ediyor.',
     en:'An international architecture firm is ordering a custom watch as a project completion gift.',
     invest:95000, reward:170000, fans:180, rep:35, days:10
   },
   {
-    id:'co_mid_19', tier:'mid',
+    id:'co_mid_19', tier:'mid', partnerSvg:`<svg viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M14 24 Q14 18 28 18 Q42 18 42 24" stroke="#c4973a" stroke-width="2" fill="none" stroke-linecap="round"/><rect x="12" y="24" width="32" height="5" rx="1" stroke="#c4973a" stroke-width="1.5"/><rect x="12" y="30" width="32" height="5" rx="1" stroke="#c4973a" stroke-width="1.5"/><path d="M14 36 Q14 42 28 42 Q42 42 42 36" stroke="#c4973a" stroke-width="2" fill="none" stroke-linecap="round"/></svg>`,
     tr:'Ülkenin önde gelen bir gıda holdinginin CEO\'su, yöneticilere özel saat siparişi veriyor. Şirket kısa süre sonra gıda güvenliği skandalına karışıyor.',
     en:'The CEO of one of the country\'s leading food holdings orders special watches for executives. The company is soon embroiled in a food safety scandal.',
     invest:120000, reward:215000, fans:-250, rep:-130, days:12
   },
   {
-    id:'co_mid_20', tier:'mid',
+    id:'co_mid_20', tier:'mid', partnerSvg:`<svg viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="28" cy="20" r="8" stroke="#c4973a" stroke-width="2"/><line x1="28" y1="28" x2="28" y2="42" stroke="#c4973a" stroke-width="2.5" stroke-linecap="round"/><path d="M14 38 Q14 44 28 44 Q42 44 42 38" stroke="#c4973a" stroke-width="2" fill="none"/><line x1="20" y1="20" x2="36" y2="20" stroke="#c4973a" stroke-width="1.5"/></svg>`,
     tr:'Büyük bir liman işletmecisi, denizci personeline özel su geçirmez saat ürettirmek istiyor.',
     en:'A major port operator wants to produce a special waterproof watch for their maritime personnel.',
     invest:110000, reward:200000, fans:200, rep:30, days:11
   },
   {
-    id:'co_mid_21', tier:'mid',
+    id:'co_mid_21', tier:'mid', partnerSvg:`<svg viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="28" cy="28" r="18" stroke="#c4973a" stroke-width="2"/><line x1="28" y1="16" x2="28" y2="28" stroke="#c4973a" stroke-width="2.5" stroke-linecap="round"/><line x1="28" y1="28" x2="38" y2="22" stroke="#c4973a" stroke-width="2" stroke-linecap="round"/><circle cx="28" cy="28" r="3" fill="#c4973a"/></svg>`,
     tr:'Uluslararası bir yatırım bankası, müşterilerine yıl sonu hediyesi olarak prestij saat istiyor.',
     en:'An international investment bank wants prestige watches as year-end gifts for their clients.',
     invest:165000, reward:300000, fans:220, rep:55, days:13
   },
   {
-    id:'co_mid_22', tier:'mid',
+    id:'co_mid_22', tier:'mid', partnerSvg:`<svg viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M28 8 L44 14 L44 30 C44 40 36 44 28 50 C20 44 12 40 12 30 L12 14 Z" stroke="#c4973a" stroke-width="2" fill="none"/><line x1="28" y1="20" x2="28" y2="36" stroke="#c4973a" stroke-width="1.5" stroke-linecap="round"/><line x1="20" y1="28" x2="36" y2="28" stroke="#c4973a" stroke-width="1.5" stroke-linecap="round"/></svg>`,
     tr:'Ülkenin silahlı kuvvetleri vakfı, emekli askerlere hatıra saati yaptırmak istiyor.',
     en:'The country\'s armed forces foundation wants to produce commemorative watches for retired soldiers.',
     invest:100000, reward:180000, fans:350, rep:45, days:10
   },
   {
-    id:'co_mid_23', tier:'mid',
+    id:'co_mid_23', tier:'mid', partnerSvg:`<svg viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="10" y="16" width="36" height="26" rx="2" stroke="#c4973a" stroke-width="2"/><line x1="10" y1="24" x2="46" y2="24" stroke="#c4973a" stroke-width="1.5"/><circle cx="18" cy="20" r="2" fill="#c4973a" opacity="0.7"/><circle cx="24" cy="20" r="2" fill="#c4973a" opacity="0.7"/><line x1="18" y1="30" x2="38" y2="30" stroke="#c4973a" stroke-width="1.5"/><line x1="18" y1="36" x2="30" y2="36" stroke="#c4973a" stroke-width="1.5"/></svg>`,
     tr:'Küresel bir danışmanlık firması, yeni mezun analistlerine işe başlama saati vermek istiyor.',
     en:'A global consulting firm wants to give new graduate analysts a watch upon joining.',
     invest:135000, reward:245000, fans:270, rep:40, days:12
   },
   {
-    id:'co_mid_24', tier:'mid',
+    id:'co_mid_24', tier:'mid', partnerSvg:`<svg viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M10 36 L10 18 L38 10 L38 44 L10 36 Z" stroke="#c4973a" stroke-width="2" fill="none" stroke-linejoin="round"/><line x1="38" y1="20" x2="46" y2="16" stroke="#c4973a" stroke-width="1.5" stroke-linecap="round"/><line x1="38" y1="28" x2="48" y2="28" stroke="#c4973a" stroke-width="1.5" stroke-linecap="round"/><line x1="38" y1="36" x2="46" y2="40" stroke="#c4973a" stroke-width="1.5" stroke-linecap="round"/></svg>`,
     tr:'Bir reklam ajansı, büyük bir ödül törenine sponsor olacak özel koleksiyon saat için üretim ortağı arıyor.',
     en:'An advertising agency is looking for a production partner for a special collection watch to sponsor a major awards ceremony.',
     invest:155000, reward:280000, fans:480, rep:50, days:13
   },
   {
-    id:'co_mid_25', tier:'mid',
+    id:'co_mid_25', tier:'mid', partnerSvg:`<svg viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg"><line x1="16" y1="40" x2="36" y2="20" stroke="#c4973a" stroke-width="2.5" stroke-linecap="round"/><rect x="32" y="8" width="16" height="8" rx="1" transform="rotate(45 32 8)" stroke="#c4973a" stroke-width="2" fill="none"/><line x1="10" y1="46" x2="22" y2="46" stroke="#c4973a" stroke-width="2" stroke-linecap="round"/></svg>`,
     tr:'Ülkenin tanınmış bir sanat müzayede evi, koleksiyoncularına yönelik imzalı saat ürettirmek istiyor.',
     en:'A well-known art auction house in the country wants to produce a signed watch for their collectors.',
     invest:175000, reward:320000, fans:320, rep:85, days:14
   },
   {
-    id:'co_mid_26', tier:'mid',
+    id:'co_mid_26', tier:'mid', partnerSvg:`<svg viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg"><line x1="28" y1="8" x2="28" y2="48" stroke="#c4973a" stroke-width="2"/><line x1="14" y1="16" x2="42" y2="16" stroke="#c4973a" stroke-width="1.5"/><path d="M14 16 L10 28 L18 28 Z" stroke="#c4973a" stroke-width="1.5" fill="none"/><path d="M42 16 L38 28 L46 28 Z" stroke="#c4973a" stroke-width="1.5" fill="none"/><line x1="20" y1="48" x2="36" y2="48" stroke="#c4973a" stroke-width="2"/></svg>`,
     tr:'Köklü bir hukuk bürosu, 100. yıl kutlaması için avukatlarına özel saat siparişi veriyor.',
     en:'A long-established law firm is ordering special watches for their lawyers to celebrate their 100th anniversary.',
     invest:90000, reward:162000, fans:140, rep:30, days:10
@@ -16791,61 +16830,61 @@ const COLLAB_OFFERS = [
 
   // ── YÜKSEK SERMAYE — EK TEKLİFLER ──
   {
-    id:'co_high_17', tier:'high',
+    id:'co_high_17', tier:'high', partnerSvg:`<svg viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="28" cy="28" r="16" stroke="#c4973a" stroke-width="2"/><circle cx="28" cy="28" r="4" fill="#c4973a"/><line x1="28" y1="12" x2="28" y2="24" stroke="#c4973a" stroke-width="2"/><line x1="28" y1="32" x2="28" y2="44" stroke="#c4973a" stroke-width="1" opacity="0.4"/><line x1="12" y1="28" x2="24" y2="28" stroke="#c4973a" stroke-width="1" opacity="0.4"/></svg>`,
     tr:'Dünyanın en prestijli polo turnuvası, VIP davetlilerine özel koleksiyon saat hediye etmek istiyor.',
     en:'The world\'s most prestigious polo tournament wants to gift a special collection watch to VIP guests.',
     invest:310000, reward:595000, fans:950, rep:160, days:13
   },
   {
-    id:'co_high_18', tier:'high',
+    id:'co_high_18', tier:'high', partnerSvg:`<svg viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg"><polyline points="8,40 18,28 26,34 36,18 48,24" stroke="#c4973a" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/><line x1="8" y1="44" x2="48" y2="44" stroke="#c4973a" stroke-width="1.5"/></svg>`,
     tr:'Uluslararası bir finans devi, borsa açılışı kutlaması için sınırlı seri saat ürettirmek istiyor.',
     en:'An international financial giant wants to produce a limited series watch to celebrate a stock exchange opening.',
     invest:550000, reward:1050000, fans:1300, rep:220, days:15
   },
   {
-    id:'co_high_19', tier:'high',
+    id:'co_high_19', tier:'high', partnerSvg:`<svg viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="12" y="12" width="32" height="32" rx="4" stroke="#c4973a" stroke-width="2"/><rect x="20" y="20" width="16" height="16" rx="2" stroke="#c4973a" stroke-width="1.5"/><line x1="12" y1="12" x2="20" y2="20" stroke="#c4973a" stroke-width="1" opacity="0.4"/><line x1="44" y1="12" x2="36" y2="20" stroke="#c4973a" stroke-width="1" opacity="0.4"/></svg>`,
     tr:'Küresel bir NFT platformu, dijital koleksiyonlarıyla eşleşen fiziksel saat üretmek istiyor. Platform kısa süre sonra çöküyor ve skandal patlak veriyor.',
     en:'A global NFT platform wants to produce physical watches matched to their digital collections. The platform collapses shortly after and scandal erupts.',
     invest:340000, reward:640000, fans:-550, rep:-320, days:13
   },
   {
-    id:'co_high_20', tier:'high',
+    id:'co_high_20', tier:'high', partnerSvg:`<svg viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M28 6 L34 14 L44 10 L40 20 L48 28 L38 28 L34 40 L28 34 L22 40 L18 28 L8 28 L16 20 L12 10 L22 14 Z" stroke="#c4973a" stroke-width="2" fill="none" stroke-linejoin="round"/></svg>`,
     tr:'Ülkenin en köklü aristokrat ailesinden biri, özel koleksiyon sipariş ediyor.',
     en:'One of the country\'s most established aristocratic families is ordering a private collection.',
     invest:420000, reward:810000, fans:1100, rep:280, days:14
   },
   {
-    id:'co_high_21', tier:'high',
+    id:'co_high_21', tier:'high', partnerSvg:`<svg viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg"><polygon points="28,8 48,20 48,48 8,48 8,20" stroke="#c4973a" stroke-width="2" fill="none"/><line x1="28" y1="8" x2="28" y2="48" stroke="#c4973a" stroke-width="1" opacity="0.4"/><rect x="20" y="34" width="16" height="14" stroke="#c4973a" stroke-width="1.5"/></svg>`,
     tr:'Uluslararası ödüllü bir mimarlık firması, ikonik yapısının açılışı için imzalı saat koleksiyonu ürettirmek istiyor.',
     en:'An internationally awarded architecture firm wants to produce a signed watch collection for the opening of their iconic building.',
     invest:380000, reward:730000, fans:850, rep:140, days:14
   },
   {
-    id:'co_high_22', tier:'high',
+    id:'co_high_22', tier:'high', partnerSvg:`<svg viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="10" y="16" width="36" height="24" rx="6" stroke="#c4973a" stroke-width="2"/><line x1="22" y1="26" x2="22" y2="32" stroke="#c4973a" stroke-width="2" stroke-linecap="round"/><line x1="19" y1="29" x2="25" y2="29" stroke="#c4973a" stroke-width="2" stroke-linecap="round"/><circle cx="34" cy="27" r="2" stroke="#c4973a" stroke-width="1.5"/><circle cx="38" cy="31" r="2" stroke="#c4973a" stroke-width="1.5"/></svg>`,
     tr:'Dünyanın en büyük e-spor organizasyonu, şampiyon takımlara kupa saati ürettirmek istiyor.',
     en:'The world\'s largest esports organization wants to produce trophy watches for champion teams.',
     invest:270000, reward:515000, fans:1800, rep:90, days:12
   },
   {
-    id:'co_high_23', tier:'high',
+    id:'co_high_23', tier:'high', partnerSvg:`<svg viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M16 40 L28 10 L40 40" stroke="#c4973a" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/><line x1="20" y1="30" x2="36" y2="30" stroke="#c4973a" stroke-width="1.5"/><circle cx="28" cy="46" r="4" stroke="#c4973a" stroke-width="2"/></svg>`,
     tr:'Küresel bir ilaç devi, Nobel ödüllü araştırmacılarına özel saat vermek istiyor.',
     en:'A global pharmaceutical giant wants to give special watches to their Nobel Prize-winning researchers.',
     invest:460000, reward:880000, fans:700, rep:220, days:15
   },
   {
-    id:'co_high_24', tier:'high',
+    id:'co_high_24', tier:'high', partnerSvg:`<svg viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="28" cy="28" r="14" stroke="#c4973a" stroke-width="2"/><circle cx="28" cy="22" r="5" stroke="#c4973a" stroke-width="1.5"/><path d="M18 38 Q18 30 28 30 Q38 30 38 38" stroke="#c4973a" stroke-width="1.5" fill="none"/><line x1="28" y1="6" x2="28" y2="14" stroke="#c4973a" stroke-width="1.5" opacity="0.5"/></svg>`,
     tr:'Gizli servis bağlantılı bir vakıf, ajan personeli için özel taktik saat ürettirmek istiyor. Bağlantı kamuoyuna sızıyor.',
     en:'A foundation with intelligence service links wants to produce special tactical watches for agent personnel. The connection leaks to the public.',
     invest:390000, reward:730000, fans:-800, rep:-400, days:13
   },
   {
-    id:'co_high_25', tier:'high',
+    id:'co_high_25', tier:'high', partnerSvg:`<svg viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M10 36 L20 20 L28 36 Z" stroke="#c4973a" stroke-width="2" fill="none" stroke-linejoin="round"/><path d="M28 36 L38 14 L46 36 Z" stroke="#c4973a" stroke-width="2" fill="none" stroke-linejoin="round"/><line x1="28" y1="36" x2="28" y2="14" stroke="#c4973a" stroke-width="1.5"/><path d="M6 42 Q28 36 50 42" stroke="#c4973a" stroke-width="2" fill="none" stroke-linecap="round"/></svg>`,
     tr:'Dünyanın en pahalı özel yat üreticisi, yat sahiplerine özel deniz saati koleksiyonu için ortak arıyor.',
     en:'The world\'s most exclusive private yacht manufacturer is looking for a partner for a special marine watch collection for yacht owners.',
     invest:650000, reward:1250000, fans:1600, rep:270, days:15
   },
   {
-    id:'co_high_26', tier:'high',
+    id:'co_high_26', tier:'high', partnerSvg:`<svg viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="28" cy="28" r="18" stroke="#c4973a" stroke-width="2"/><circle cx="28" cy="28" r="12" stroke="#c4973a" stroke-width="1" opacity="0.4"/><line x1="28" y1="10" x2="28" y2="16" stroke="#c4973a" stroke-width="2"/><line x1="28" y1="40" x2="28" y2="46" stroke="#c4973a" stroke-width="2"/><line x1="10" y1="28" x2="16" y2="28" stroke="#c4973a" stroke-width="2"/><line x1="40" y1="28" x2="46" y2="28" stroke="#c4973a" stroke-width="2"/><line x1="28" y1="20" x2="32" y2="28" stroke="#c4973a" stroke-width="2" stroke-linecap="round"/><circle cx="28" cy="28" r="2" fill="#c4973a"/></svg>`,
     tr:'Uluslararası bir miras vakfı, tarihi saatlerin modern yorumlarını içeren koleksiyon için üretim ortağı arıyor.',
     en:'An international heritage foundation is looking for a production partner for a collection featuring modern interpretations of historic timepieces.',
     invest:300000, reward:575000, fans:900, rep:200, days:13
