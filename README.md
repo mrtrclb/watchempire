@@ -35,6 +35,8 @@
 - 🏅 51 başarım
 - ⚠️ Üretim hattı arıza sistemi
 - 🏁 Kilometre taşları
+- 🗣️ Dinamik Yorum & değerlendirme Sistemi   
+- 📰 Rastgele Olaylar 
 
 ### Teknoloji
 
@@ -77,6 +79,8 @@ Oyunumuzda yer alan isimler hiçbir marka, kişi ya da kuruluşu temsil etmemekt
 - 🏅 51 achievements
 - ⚠️ Production line disruption system
 - 🏁 Milestone system
+- 🗣️ Dynamic Review System — 30 unique reviewers with different perspectives (design, technical, value). A pool of 1200+ comments reacts to your production decisions.  
+- 📰 Random Events — Events appear every 2 in-game days, affecting both you and your competitors with gains, losses, and unexpected opportunities.
 
 ### Tech Stack
 
