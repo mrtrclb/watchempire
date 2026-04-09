@@ -6748,10 +6748,11 @@ function renderModels() {
     card.innerHTML = `
       <div class="model-card-inner">
         <!-- Watch thumbnail -->
-        <div style="width:100%;height:100px;overflow:hidden;background:#0f0d0b;flex-shrink:0;">
+        <div style="width:100%;height:100px;overflow:hidden;background:#0f0d0b;flex-shrink:0;position:relative;">
           <img src="${_cImg}" alt="${m.name}" loading="lazy"
             style="width:100%;height:100%;object-fit:cover;object-position:center;"
             onerror="this.parentElement.innerHTML='<div style=\'width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:32px;\'>${cat.icon}</div>'">
+          ${topSellerModel && topSellerModel.id === m.id ? `<div style="position:absolute;top:8px;left:8px;font-size:9px;font-weight:700;color:#fff;background:rgba(180,120,0,0.88);border:1px solid rgba(255,200,60,0.5);padding:3px 7px;letter-spacing:0.06em;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);box-shadow:0 1px 6px rgba(0,0,0,0.4);">🏆 ${isTR?'EN ÇOK SATAN':'TOP SELLER'}</div>` : ''}
         </div>
         <div class="model-card-body" style="padding:10px 12px;">
 
@@ -6760,7 +6761,6 @@ function renderModels() {
             <div style="min-width:0;flex:1;padding-right:6px;display:flex;align-items:center;gap:6px;">
               <div class="model-name" style="font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${m.name}</div>
               <button onclick="showModelInfo(${m.id})" style="flex-shrink:0;width:18px;height:18px;border-radius:50%;border:1px solid var(--border-gold);background:rgba(196,151,58,0.1);color:var(--gold);font-size:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;line-height:1;" title="${isTR?'Model Detayları':'Model Details'}">ℹ</button>
-              ${topSellerModel && topSellerModel.id === m.id ? `<div style="flex-shrink:0;font-size:9px;font-weight:700;color:#f0a500;background:rgba(240,165,0,0.12);border:1px solid rgba(240,165,0,0.3);padding:1px 5px;letter-spacing:0.05em;">🏆 ${isTR?'EN ÇOK SATAN':'TOP SELLER'}</div>` : ''}
               <div style="font-size:9px;color:var(--slate);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${marketSubtitle}</div>
             </div>
             ${statusBadge}
@@ -13129,7 +13129,12 @@ function openReviewScreen(model) {
 
   const _revLiIdx = (typeof logoIndex !== 'undefined') ? logoIndex : (Game.logoIndex || 0);
   const _revLogo = (window.LOGOS && LOGOS[_revLiIdx]) ? LOGOS[_revLiIdx].svg : '';
-  const _revLogoSmall = _revLogo ? _revLogo.replace('<svg ', '<svg style="width:22px;height:22px;display:inline-block;vertical-align:middle;flex-shrink:0;" ') : '';
+  const _revLogoSmall = _revLogo
+    ? _revLogo
+        .replace('<svg ', '<svg style="width:22px;height:22px;display:inline-block;vertical-align:middle;flex-shrink:0;" ')
+        .replace(/width="56"/, '')
+        .replace(/height="56"/, '')
+    : '';
   document.getElementById('revModel').innerHTML = `<span style="display:inline-flex;align-items:center;gap:6px;">${_revLogoSmall}${Game.brand} — ${model.name}</span>`;
   document.getElementById('revCat').textContent = cat.icon + ' ' + catName;
 
@@ -15516,7 +15521,12 @@ function renderOfficePanel() {
   // Logo SVG — global logoIndex kullan (Game.logoIndex bazen set olmayabilir)
   const _liIdx = (typeof logoIndex !== 'undefined') ? logoIndex : (Game.logoIndex || 0);
   const _rawLogoSVG = (window.LOGOS && LOGOS[_liIdx]) ? LOGOS[_liIdx].svg : '';
-  const logoSVG = _rawLogoSVG ? _rawLogoSVG.replace('<svg ', '<svg style="width:40px;height:40px;display:block;flex-shrink:0;" ') : '';
+  const logoSVG = _rawLogoSVG
+    ? _rawLogoSVG
+        .replace('<svg ', '<svg style="width:40px;height:40px;display:block;flex-shrink:0;" ')
+        .replace(/width="56"/, '')
+        .replace(/height="56"/, '')
+    : '';
 
   const groups = [
     { key:'engineer',   label: isTR?'Üretim Ekibi — Mühendisler':'Production — Engineers' },
