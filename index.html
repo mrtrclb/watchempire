@@ -7329,7 +7329,10 @@ function renderCollabBanner(offer) {
   // Oyuncu SVG — width/height'i 40x40 olarak ayarla
   const playerSvg = playerLogo ? playerLogo.svg.replace(/width="56"/g,'width="40"').replace(/height="56"/g,'height="40"') : '';
   // Partner SVG — viewBox tabanlı, style ile boyutlandır
-  const rawPartner = offer.partnerSvg || '';
+  // partnerSvg yoksa (eski save) COLLAB_OFFERS'dan id ile bul
+  const sourceOffer = (offer.partnerSvg) ? offer : (window.COLLAB_OFFERS || []).find(o => o.id === offer.id) || offer;
+  const rawPartner = sourceOffer.partnerSvg || '';
+  console.log('[Banner]', offer.id, 'rawPartner length:', rawPartner.length);
   const partnerSvg = rawPartner ? rawPartner.replace('<svg ', '<svg width="40" height="40" style="display:block;" ') : '';
   const banner = document.createElement('div');
   banner.style.cssText = 'display:flex;align-items:center;justify-content:space-between;background:#0a0806;border-bottom:1px solid rgba(196,151,58,0.15);padding:12px 16px;min-height:68px;';
@@ -7341,16 +7344,10 @@ function renderCollabBanner(offer) {
   const partnerWrap = document.createElement('div');
   partnerWrap.style.cssText = 'width:44px;height:44px;flex-shrink:0;display:flex;align-items:center;justify-content:center;';
   if (rawPartner) {
-    try {
-      const parser = new DOMParser();
-      const svgDoc = parser.parseFromString(rawPartner, 'image/svg+xml');
-      const svgEl = svgDoc.querySelector('svg');
-      if (svgEl) {
-        svgEl.setAttribute('width', '40');
-        svgEl.setAttribute('height', '40');
-        partnerWrap.appendChild(svgEl);
-      }
-    } catch(e) { partnerWrap.innerHTML = partnerSvg; }
+    // innerHTML en güvenli yöntem — escaped quote'lar sorun çıkarmaz
+    const sized = rawPartner.replace(/width="[^"]*"/, '').replace(/height="[^"]*"/, '')
+      .replace('<svg ', '<svg width="40" height="40" ');
+    partnerWrap.innerHTML = sized;
   }
   banner.appendChild(playerWrap);
   banner.appendChild(partnerWrap);
