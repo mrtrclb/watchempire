@@ -7326,14 +7326,13 @@ function renderModels() {
 // ── İŞBİRLİĞİ BANNER RENDER ──
 function renderCollabBanner(offer) {
   const playerLogo = (window.LOGOS && window.LOGOS[Game.logoIndex || 0]) ? window.LOGOS[Game.logoIndex || 0] : null;
-  const playerSvg = playerLogo ? playerLogo.svg.replace(/width="56"/g,'width="100%"').replace(/height="56"/g,'height="100%"') : '';
-  const partnerSvg = offer.partnerSvg || '';
+  // Oyuncu SVG — width/height'i 40x40 olarak ayarla
+  const playerSvg = playerLogo ? playerLogo.svg.replace(/width="56"/g,'width="40"').replace(/height="56"/g,'height="40"') : '';
+  // Partner SVG — viewBox tabanlı, width/height ekle
+  const rawPartner = offer.partnerSvg || '';
+  const partnerSvg = rawPartner ? rawPartner.replace('<svg ', '<svg width="40" height="40" ') : '';
   const banner = document.createElement('div');
-  banner.style.cssText = `
-    display:flex;align-items:center;justify-content:space-between;
-    background:#0a0806;border-bottom:1px solid rgba(196,151,58,0.15);
-    padding:10px 16px;gap:12px;min-height:64px;
-  `;
+  banner.style.cssText = 'display:flex;align-items:center;justify-content:space-between;background:#0a0806;border-bottom:1px solid rgba(196,151,58,0.15);padding:12px 16px;min-height:68px;';
   // Oyuncu logosu — sol
   const playerWrap = document.createElement('div');
   playerWrap.style.cssText = 'width:44px;height:44px;flex-shrink:0;display:flex;align-items:center;justify-content:center;';
