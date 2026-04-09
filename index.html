@@ -7332,7 +7332,6 @@ function renderCollabBanner(offer) {
   // partnerSvg yoksa (eski save) COLLAB_OFFERS'dan id ile bul
   const sourceOffer = (offer.partnerSvg) ? offer : (window.COLLAB_OFFERS || []).find(o => o.id === offer.id) || offer;
   const rawPartner = sourceOffer.partnerSvg || '';
-  console.log('[Banner]', offer.id, 'rawPartner length:', rawPartner.length);
   const partnerSvg = rawPartner ? rawPartner.replace('<svg ', '<svg width="40" height="40" style="display:block;" ') : '';
   const banner = document.createElement('div');
   banner.style.cssText = 'display:flex;align-items:center;justify-content:space-between;background:#0a0806;border-bottom:1px solid rgba(196,151,58,0.15);padding:12px 16px;min-height:68px;';
@@ -7348,7 +7347,6 @@ function renderCollabBanner(offer) {
     const cleaned = rawPartner.replace(/\\"/g, '"').replace(/width="[^"]*"/g, '').replace(/height="[^"]*"/g, '');
     const sized = cleaned.replace('<svg ', '<svg width="40" height="40" ');
     partnerWrap.innerHTML = sized;
-    console.log('[Banner SVG]', sized.substring(0, 80));
   }
   banner.appendChild(playerWrap);
   banner.appendChild(partnerWrap);
