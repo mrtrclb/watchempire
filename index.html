@@ -4705,7 +4705,7 @@
 // ══════════════════════════════════════════════
 // LOGO & FONT SİSTEMİ
 // ══════════════════════════════════════════════
-const LOGOS = [
+window.LOGOS = [
   { name_tr: 'Dişli', name_en: 'Gear',       svg: `<svg width="56" height="56" viewBox="0 0 56 56" fill="none"><path d="M28 18a10 10 0 100 20 10 10 0 000-20zm0 4a6 6 0 110 12 6 6 0 010-12z" fill="#c4973a"/><path d="M26 4h4v6h-4zM26 46h4v6h-4zM4 26v4h6v-4zM46 26v4h6v-4zM9.2 11.4l2.8-2.8 4.2 4.2-2.8 2.8zM39.8 40l2.8-2.8 4.2 4.2-2.8 2.8zM9.2 44.6l4.2-4.2 2.8 2.8-4.2 4.2zM39.8 16l4.2-4.2 2.8 2.8-4.2 4.2z" fill="#c4973a" opacity="0.7"/></svg>` },
   { name_tr: 'Taç', name_en: 'Crown',         svg: `<svg width="56" height="56" viewBox="0 0 56 56" fill="none"><path d="M8 40h40l-6-24-8 12-6-16-6 16-8-12z" fill="none" stroke="#c4973a" stroke-width="2.5" stroke-linejoin="round"/><rect x="8" y="40" width="40" height="4" rx="1" fill="#c4973a"/></svg>` },
   { name_tr: 'Elmas', name_en: 'Diamond',       svg: `<svg width="56" height="56" viewBox="0 0 56 56" fill="none"><polygon points="28,6 50,22 50,34 28,50 6,34 6,22" fill="none" stroke="#c4973a" stroke-width="2"/><polygon points="28,12 44,23 44,33 28,44 12,33 12,23" fill="none" stroke="#c4973a" stroke-width="1" opacity="0.4"/><circle cx="28" cy="28" r="3" fill="#c4973a"/></svg>` },
@@ -4765,8 +4765,8 @@ const FONTS = [
   { name: 'Lucida Console',style: '"Lucida Console", Monaco, monospace',  label: 'Precision' },
 ];
 
-let logoIndex = 0;
-let fontIndex = 0;
+var logoIndex = 0;
+var fontIndex = 0;
 
 function initLogoFontPicker() {
   logoIndex = Math.floor(Math.random() * LOGOS.length);
@@ -8464,6 +8464,7 @@ function selectRndModel(modelId, btn) {
   rndActiveModel = modelId;
   loadRndParams(modelId);
   applyRndCategoryFilter(modelId);
+  setDesignMode('designer');
 }
 
 // Kategoriye göre Tasarım Dinamikleri satırlarını ve komplikasyon chip'lerini göster/gizle
@@ -11746,7 +11747,10 @@ function showModelInfo(modelId) {
 
         <!-- Başlık satırı -->
         <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px;">
-          <div style="font-family:Georgia,serif;font-size:20px;font-weight:700;color:var(--ink);line-height:1.2;">${model.name}</div>
+          <div style="display:flex;align-items:center;gap:8px;min-width:0;">
+            ${(()=>{const _li=(typeof logoIndex!=='undefined')?logoIndex:(Game.logoIndex||0);const _svg=window.LOGOS&&LOGOS[_li]?LOGOS[_li].svg:'';return _svg?_svg.replace('<svg ','<svg style="width:28px;height:28px;display:block;flex-shrink:0;" ').replace(/width="56"/,'').replace(/height="56"/,''):'';})()}
+            <div style="font-family:Georgia,serif;font-size:20px;font-weight:700;color:var(--ink);line-height:1.2;">${model.name}</div>
+          </div>
           <div style="text-align:right;flex-shrink:0;margin-left:12px;">
             <div style="font-family:'SF Mono',Consolas,monospace;font-size:18px;font-weight:700;color:var(--gold);">$${(model.sellPrice||0).toLocaleString()}</div>
             <div style="font-size:9px;color:var(--slate);">${isTR?'satış fiyatı':'sale price'}</div>
