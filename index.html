@@ -7344,10 +7344,11 @@ function renderCollabBanner(offer) {
   const partnerWrap = document.createElement('div');
   partnerWrap.style.cssText = 'width:44px;height:44px;flex-shrink:0;display:flex;align-items:center;justify-content:center;';
   if (rawPartner) {
-    // innerHTML en güvenli yöntem — escaped quote'lar sorun çıkarmaz
-    const sized = rawPartner.replace(/width="[^"]*"/, '').replace(/height="[^"]*"/, '')
-      .replace('<svg ', '<svg width="40" height="40" ');
+    // Escaped " → " dönüştür, sonra boyutlandır
+    const cleaned = rawPartner.replace(/\\"/g, '"').replace(/width="[^"]*"/g, '').replace(/height="[^"]*"/g, '');
+    const sized = cleaned.replace('<svg ', '<svg width="40" height="40" ');
     partnerWrap.innerHTML = sized;
+    console.log('[Banner SVG]', sized.substring(0, 80));
   }
   banner.appendChild(playerWrap);
   banner.appendChild(partnerWrap);
