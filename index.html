@@ -7462,8 +7462,11 @@ function renderCollabSection(container) {
 
       const card = document.createElement('div');
       card.className = 'offer-card' + (isRisky ? ' offer-risky' : '');
+      card.style.overflow = 'hidden';
       card.appendChild(renderCollabBanner(o));
-      card.innerHTML += `
+      const pendingInner = document.createElement('div');
+      pendingInner.style.cssText = 'padding:10px 14px;';
+      pendingInner.innerHTML = `
         ${isRisky ? `<div class="offer-pending-badge">⚠️ ${isTR?'RİSKLİ TEKLİF':'RISKY OFFER'}</div>` : `<div class="offer-pending-badge">🆕 ${isTR?'YENİ TEKLİF':'NEW OFFER'}</div>`}
         <div class="offer-desc">${isTR ? o.tr : o.en}</div>
         <div class="offer-metrics">
@@ -7493,6 +7496,7 @@ function renderCollabSection(container) {
           </button>
           <button class="offer-btn-reject" onclick="rejectCollabOffer('${o.id}')">✗ ${isTR?'REDDET':'REJECT'}</button>
         </div>`;
+      card.appendChild(pendingInner);
       section.appendChild(card);
     });
   } else if (active.length === 0) {
