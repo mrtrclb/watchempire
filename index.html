@@ -43,6 +43,10 @@
 <meta name="twitter:image:alt" content="Watch Empire — Saat Üretim Simülasyonu">
 
 <title>Watch Empire — Saat Üretim Simülasyonu</title>
+<!-- Google Fonts — Font Seçici için -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Cinzel:wght@700&family=Lora:wght@700&family=Raleway:wght@700&family=Josefin+Sans:wght@700&family=Libre+Baskerville:wght@700&family=Oswald:wght@700&family=Bebas+Neue&family=Inconsolata:wght@700&family=Space+Mono:wght@700&display=swap" rel="stylesheet">
 <!-- Firebase SDK — online presence için -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
@@ -3523,7 +3527,8 @@
           data-placeholder-tr="örn. Auron, Velox, Zenit..." 
           data-placeholder-en="e.g. Auron, Velox, Zenit..."
           placeholder="örn. Auron, Velox, Zenit..."
-          maxlength="10">
+          maxlength="10"
+          oninput="Game.brand=this.value.trim();renderFontSlider();">
         <p class="form-hint" data-tr="Maks. 10 karakter." data-en="Max 10 chars.">Maks. 10 karakter.</p>
         <p class="form-error" id="err-brand" data-tr="Marka adı gerekli (2-10 karakter)" data-en="Brand name required (2-10 chars)">Marka adı gerekli (2-10 karakter)</p>
       </div>
@@ -4759,16 +4764,16 @@ window.LOGOS = [
 ];
 
 const FONTS = [
-  { name: 'Georgia',       style: 'Georgia, serif',                     label: 'Klassik' },
-  { name: 'Palatino',      style: '"Palatino Linotype", Palatino, serif',label: 'Prestige' },
-  { name: 'Garamond',      style: 'Garamond, "Times New Roman", serif',  label: 'Elegance' },
-  { name: 'Times New Roman', style: '"Times New Roman", Times, serif',   label: 'Heritage' },
-  { name: 'Trebuchet MS',  style: '"Trebuchet MS", Helvetica, sans-serif',label: 'Modern' },
-  { name: 'Verdana',       style: 'Verdana, Geneva, sans-serif',          label: 'Clean' },
-  { name: 'Arial Narrow',  style: '"Arial Narrow", Arial, sans-serif',    label: 'Sharp' },
-  { name: 'Impact',        style: 'Impact, "Arial Black", sans-serif',    label: 'Bold' },
-  { name: 'Courier New',   style: '"Courier New", Courier, monospace',    label: 'Technical' },
-  { name: 'Lucida Console',style: '"Lucida Console", Monaco, monospace',  label: 'Precision' },
+  { name: 'Playfair Display', style: "'Playfair Display', Georgia, serif",        label: 'Klassik' },
+  { name: 'Cinzel',           style: "'Cinzel', 'Times New Roman', serif",         label: 'Imperial' },
+  { name: 'Lora',             style: "'Lora', Georgia, serif",                     label: 'Elegance' },
+  { name: 'Libre Baskerville',style: "'Libre Baskerville', Georgia, serif",        label: 'Heritage' },
+  { name: 'Raleway',          style: "'Raleway', Helvetica, sans-serif",           label: 'Modern' },
+  { name: 'Josefin Sans',     style: "'Josefin Sans', Helvetica, sans-serif",      label: 'Clean' },
+  { name: 'Oswald',           style: "'Oswald', 'Arial Narrow', sans-serif",       label: 'Sharp' },
+  { name: 'Bebas Neue',       style: "'Bebas Neue', Impact, sans-serif",           label: 'Bold' },
+  { name: 'Inconsolata',      style: "'Inconsolata', 'Courier New', monospace",    label: 'Technical' },
+  { name: 'Space Mono',       style: "'Space Mono', 'Lucida Console', monospace",  label: 'Precision' },
 ];
 
 var logoIndex = 0;
