@@ -1022,9 +1022,14 @@
     min-width: 0;
   }
 
-  .brand-title span {
+  /* Yalnızca ilk kurulum öncesi varsayılan "Watch<span>Empire</span>" başlığına uygulanır.
+     Kullanıcı marka kurduktan sonra updateBrandTitle() yeni span üretir ve .user-brand sınıfı ekler. */
+  .brand-title span:not(.user-brand) {
     color: var(--gold);
     font-style: italic;
+  }
+  .brand-title span.user-brand {
+    font-style: normal;
   }
 
   .top-stats {
@@ -3090,7 +3095,8 @@
 
       <!-- Marka satırı -->
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid var(--border);">
-        <div style="font-size:13px;font-weight:700;color:var(--gold);" id="rs-brand">—</div>
+        <div id="rs-logo" style="flex-shrink:0;display:inline-flex;align-items:center;"></div>
+        <div id="rs-brand" style="font-size:13px;font-weight:700;color:var(--gold);font-style:normal;">—</div>
         <div style="font-size:10px;color:var(--slate);">
           <span id="rs-season">—</span> · <span data-tr="Gün" data-en="Day">Gün</span> <span id="rs-day">—</span>/<span id="rs-maxday">90</span>
         </div>
@@ -4857,7 +4863,7 @@ function updateBrandTitle() {
   const fontSize = len <= 6 ? '15px' : len <= 8 ? '13px' : '11px';
   el.innerHTML =
     `<span class="brand-logo-mini">${logo.svg}</span>` +
-    `<span style="font-family:${font.style};font-size:${fontSize};font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${name}</span>`;
+    `<span class="user-brand" style="font-family:${font.style};font-size:${fontSize};font-weight:700;font-style:normal;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${name}</span>`;
 }
 
 // ── HAMBURGER MENU ──
@@ -5895,7 +5901,33 @@ function fillResetSummary() {
   // Yeni popup ID'leri
   const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
 
-  set('rs-brand',       Game.brand || '—');
+  // ── Marka adı + logo (kullanıcının seçtiği font ile) ──
+  const _rsBrandEl = document.getElementById('rs-brand');
+  if (_rsBrandEl) {
+    if (Game.brand) {
+      const _rsFont = (typeof FONTS !== 'undefined' && FONTS[Game.fontIndex || 0])
+        ? FONTS[Game.fontIndex || 0].style
+        : "Georgia, 'Times New Roman', serif";
+      _rsBrandEl.textContent = Game.brand;
+      _rsBrandEl.style.fontFamily = _rsFont;
+      _rsBrandEl.style.fontStyle = 'normal';
+    } else {
+      _rsBrandEl.textContent = '—';
+      _rsBrandEl.style.fontFamily = '';
+    }
+  }
+  const _rsLogoEl = document.getElementById('rs-logo');
+  if (_rsLogoEl) {
+    const _rsLogoIdx = (typeof logoIndex !== 'undefined') ? logoIndex : (Game.logoIndex || 0);
+    const _rsLogo = (window.LOGOS && LOGOS[_rsLogoIdx]) ? LOGOS[_rsLogoIdx].svg : '';
+    _rsLogoEl.innerHTML = _rsLogo
+      ? _rsLogo
+          .replace('<svg ', '<svg style="width:22px;height:22px;display:inline-block;vertical-align:middle;flex-shrink:0;" ')
+          .replace(/width="56"/, '')
+          .replace(/height="56"/, '')
+      : '';
+  }
+
   set('rs-season',      inGame ? (isTR ? `Sezon ${Game.season}` : `Season ${Game.season}`) : '—');
   set('rs-day',         inGame ? Game.day : '—');
   set('rs-maxday',      Game.maxDays || 90);
@@ -7849,8 +7881,19 @@ function _advanceDayCore(btn) {
     // Günlük özet için biriktir
     m._dailySoldToday  = (m._dailySoldToday  || 0) + actualSold;
     m._dailyEarnedToday = (m._dailyEarnedToday || 0) + earned;
-    Game.reputation = (Game.reputation || 0) + Math.max(0, Math.floor(actualSold * 0.006)) + (m.designerRepBonus || 0);
-    Game.fans = (Game.fans || 0) + Math.floor(actualSold * 0.025 * ratingMult);
+    // ── Fiyatlama stratejisi çarpanı (agresif/ucuz fiyat takipçi ve itibarı artırır) ──
+    // priceRatio <= 1.2  → ×1.80 (agresif fiyat, halk markası)
+    // priceRatio <= 1.5  → ×1.35 (uygun fiyat)
+    // priceRatio <= 2.5  → ×1.00 (normal)
+    // priceRatio <= 4.0  → ×0.75 (pahalı, itibarlı kitlede tutunur)
+    // priceRatio >  4.0  → ×0.50 (fahiş fiyat, takipçi büyümesi yavaş)
+    const fanPriceMult = priceRatio <= 1.2 ? 1.80
+                      : priceRatio <= 1.5 ? 1.35
+                      : priceRatio <= 2.5 ? 1.00
+                      : priceRatio <= 4.0 ? 0.75
+                                          : 0.50;
+    Game.reputation = (Game.reputation || 0) + Math.max(0, Math.floor(actualSold * 0.006 * fanPriceMult)) + (m.designerRepBonus || 0);
+    Game.fans = (Game.fans || 0) + Math.floor(actualSold * 0.025 * ratingMult * fanPriceMult);
     if (actualSold > 0) {
       playSfx('sale');
       // +$X float animasyonu
@@ -12012,6 +12055,11 @@ function _showFinalScreen(season, playerRank, totalFirms) {
     : playerRank <= 25 ? (isTR ? '🥉 Güçlü Rakip'      : '🥉 Strong Contender')
     :                    (isTR ? '⌚ Saat Ustası'       : '⌚ Watch Craftsman');
 
+  // Kullanıcının seçtiği marka fontu (paylaşım kartı için)
+  const _brandFont = (typeof FONTS !== 'undefined' && FONTS[Game.fontIndex || 0])
+    ? FONTS[Game.fontIndex || 0].style
+    : "Georgia, 'Times New Roman', serif";
+
   const html = `
     <!-- SHARE TARGET (screenshot için) -->
     <div id="finalShareCard" style="background:linear-gradient(160deg,#1a1208 0%,#0d0b09 60%,#1a1208 100%);border:1px solid var(--border-gold);padding:28px 24px;margin-bottom:20px;position:relative;overflow:hidden;">
@@ -12023,7 +12071,7 @@ function _showFinalScreen(season, playerRank, totalFirms) {
       <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;">
         <div style="font-size:32px;">${(window.LOGOS&&Game.logoIndex!==undefined)?LOGOS[Game.logoIndex]?.svg||'⌚':''}</div>
         <div>
-          <div style="font-family:Georgia,serif;font-size:22px;font-weight:700;color:var(--gold);">${Game.brand||'—'}</div>
+          <div style="font-family:${_brandFont};font-size:22px;font-weight:700;font-style:normal;color:var(--gold);">${Game.brand||'—'}</div>
           <div style="font-size:10px;color:var(--slate);letter-spacing:0.15em;">${isTR?'SEZON '+season+' TAMAMLANDI':'SEASON '+season+' COMPLETE'}</div>
         </div>
         <div style="margin-left:auto;text-align:right;">
@@ -12089,58 +12137,79 @@ async function _screenshotFinal() {
   if (!card) return;
 
   try {
-    // html2canvas yok — Canvas API ile manuel çizim yapıyoruz
-    // Tarayıcının kendi print/share özelliğini kullan
-    const btn = document.querySelector('#finalContent button');
+    // SVG foreignObject tekniği: DOM kartını olduğu gibi canvas'a raster eder.
+    // Böylece seçilen marka fontu, logo SVG, renkler ve tüm stiller korunur.
+    const w = card.offsetWidth;
+    const h = card.offsetHeight;
+    if (!w || !h) { _screenshotFallback(); return; }
 
-    // Önce paylaş API'sini dene (mobil)
-    if (navigator.share && navigator.canShare) {
-      // Canvas'a çiz
-      const canvas = document.createElement('canvas');
-      const scale = window.devicePixelRatio || 2;
-      canvas.width  = card.offsetWidth  * scale;
-      canvas.height = card.offsetHeight * scale;
-      const ctx2 = canvas.getContext('2d');
-      ctx2.scale(scale, scale);
+    // Kartın HTML'ini string olarak al + inline <style> ile gerekli tipografi kurallarını ekle
+    const cardClone = card.cloneNode(true);
+    // Bazı değişkenler foreignObject içinde çözülemeyebilir — inline olarak baza CSS ver
+    const serializer = new XMLSerializer();
+    const cardHtml = serializer.serializeToString(cardClone);
 
-      // Arka plan
-      ctx2.fillStyle = '#1a1208';
-      ctx2.fillRect(0, 0, card.offsetWidth, card.offsetHeight);
+    // Font stacks - Google Fonts zaten sayfada yüklü olduğu için canvas'ta da kullanılabilir
+    const _brandFont = (typeof FONTS !== 'undefined' && FONTS[Game.fontIndex || 0])
+      ? FONTS[Game.fontIndex || 0].style
+      : "Georgia, 'Times New Roman', serif";
 
-      // Metinleri canvas'a çiz — basit metin render
-      ctx2.fillStyle = '#c4973a';
-      ctx2.font = 'bold 16px Georgia, serif';
-      ctx2.fillText(Game.brand || 'Watch Empire', 20, 40);
-      ctx2.font = '11px monospace';
-      ctx2.fillStyle = '#6a5e4a';
-      ctx2.fillText((isTR ? 'SEZON ' : 'SEASON ') + (Game.season-1) + (isTR ? ' TAMAMLANDI' : ' COMPLETE'), 20, 60);
-      ctx2.fillStyle = '#c4973a';
-      ctx2.font = 'bold 14px monospace';
-      ctx2.fillText((isTR ? 'Sıralama: #' : 'Rank: #') + '?', 20, 90);
-      ctx2.fillStyle = '#f0ebe3';
-      ctx2.font = '12px monospace';
-      ctx2.fillText((isTR?'Toplam Satış: ':'Total Sales: ') + formatNum(Game.totalSales||0), 20, 120);
-      ctx2.fillText((isTR?'Nakit: $':'Cash: $') + formatNum(Game.cash||0), 20, 140);
-      ctx2.fillText((isTR?'İtibar: ':'Rep: ') + formatNum(Game.reputation||0), 20, 160);
-      ctx2.fillStyle = 'rgba(196,151,58,0.4)';
-      ctx2.font = '9px monospace';
-      ctx2.fillText('watchempire.net', canvas.width/scale - 100, canvas.height/scale - 12);
+    const svgData = `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">
+      <foreignObject width="100%" height="100%">
+        <div xmlns="http://www.w3.org/1999/xhtml" style="width:${w}px;height:${h}px;font-family:${_brandFont};color:#f0ebe3;--cream:#151210;--ink:#f0ebe3;--ink-light:#c8c0b8;--gold:#c4973a;--gold-light:#e8c97a;--gold-pale:#2a220e;--rust:#d9614e;--slate:#8a8078;--border:rgba(240,235,227,0.1);--border-gold:rgba(196,151,58,0.35);">
+          <style>
+            * { box-sizing: border-box; }
+            .finalShareCardRoot { width: 100%; height: 100%; }
+          </style>
+          <div class="finalShareCardRoot">${cardHtml}</div>
+        </div>
+      </foreignObject>
+    </svg>`;
 
-      canvas.toBlob(async blob => {
-        if (!blob) { _screenshotFallback(); return; }
-        try {
-          const file = new File([blob], 'watchempire-result.png', { type: 'image/png' });
-          if (navigator.canShare({ files: [file] })) {
-            await navigator.share({ files: [file], title: 'Watch Empire', text: Game.brand + ' — watchempire.net' });
-          } else {
-            _screenshotFallback();
-          }
-        } catch(e) { _screenshotFallback(); }
-      });
-    } else {
-      _screenshotFallback();
-    }
+    const svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+    const url = URL.createObjectURL(svgBlob);
+
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    const loaded = new Promise((resolve, reject) => {
+      img.onload = () => resolve();
+      img.onerror = (e) => reject(e);
+    });
+    img.src = url;
+    await loaded;
+
+    const scale = window.devicePixelRatio || 2;
+    const canvas = document.createElement('canvas');
+    canvas.width  = w * scale;
+    canvas.height = h * scale;
+    const ctx2 = canvas.getContext('2d');
+    ctx2.scale(scale, scale);
+    // Arka plan fallback (gradient foreignObject'te render olmazsa diye)
+    ctx2.fillStyle = '#1a1208';
+    ctx2.fillRect(0, 0, w, h);
+    ctx2.drawImage(img, 0, 0, w, h);
+    URL.revokeObjectURL(url);
+
+    // Paylaş veya indir
+    canvas.toBlob(async blob => {
+      if (!blob) { _screenshotFallback(); return; }
+      try {
+        const file = new File([blob], 'watchempire-' + (Game.brand||'result').replace(/[^a-z0-9]/gi,'') + '.png', { type: 'image/png' });
+        if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+          await navigator.share({ files: [file], title: 'Watch Empire', text: (Game.brand||'Watch Empire') + ' — watchempire.net' });
+        } else {
+          // Masaüstü: indirilebilir link
+          const a = document.createElement('a');
+          a.href = URL.createObjectURL(blob);
+          a.download = file.name;
+          document.body.appendChild(a);
+          a.click();
+          setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1500);
+        }
+      } catch(e) { _screenshotFallback(); }
+    }, 'image/png');
   } catch(e) {
+    console.warn('Screenshot error:', e);
     _screenshotFallback();
   }
 }
@@ -16280,7 +16349,10 @@ function openReviewScreen(model) {
         .replace(/width="56"/, '')
         .replace(/height="56"/, '')
     : '';
-  document.getElementById('revModel').innerHTML = `<span style="display:inline-flex;align-items:center;gap:6px;">${_revLogoSmall}${Game.brand} — ${model.name}</span>`;
+  const _revBrandFont = (typeof FONTS !== 'undefined' && FONTS[Game.fontIndex || 0])
+    ? FONTS[Game.fontIndex || 0].style
+    : "Georgia, 'Times New Roman', serif";
+  document.getElementById('revModel').innerHTML = `<span style="display:inline-flex;align-items:center;gap:6px;">${_revLogoSmall}<span style="font-family:${_revBrandFont};font-style:normal;">${Game.brand}</span> — ${model.name}</span>`;
   document.getElementById('revCat').textContent = cat.icon + ' ' + catName;
 
   // Puan hesapla — qualityScore + kategori bonusu
@@ -18726,12 +18798,17 @@ function renderOfficePanel() {
     </div>`;
   }
 
+  // Kullanıcının kurulumda seçtiği markaya özel font
+  const _brandFont = (typeof FONTS !== 'undefined' && FONTS[Game.fontIndex || 0])
+    ? FONTS[Game.fontIndex || 0].style
+    : "Georgia, 'Times New Roman', serif";
+
   let html = `
     <!-- Sticky kapat başlık -->
     <div style="position:sticky;top:0;z-index:10;background:#1c1916;display:flex;align-items:center;gap:12px;padding:10px 0 12px;margin-bottom:4px;border-bottom:1px solid rgba(196,151,58,0.2);">
       <div style="flex-shrink:0;">${logoSVG}</div>
       <div style="flex:1;min-width:0;">
-        <div style="font-family:Georgia,serif;font-size:16px;font-weight:700;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${Game.brand || '—'}</div>
+        <div style="font-family:${_brandFont};font-size:16px;font-weight:700;font-style:normal;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${Game.brand || '—'}</div>
         <div style="font-size:10px;color:var(--slate);">${loc.flag} ${loc.name} · ${isTR?'Kuruluştan bu yana':'Since founding'}: ${totalDays} ${isTR?'gün':'days'}</div>
       </div>
       <button onclick="document.getElementById('officePopup').classList.remove('show')" style="background:none;border:none;color:var(--slate);font-size:26px;line-height:1;cursor:pointer;padding:4px 8px;flex-shrink:0;touch-action:manipulation;">&times;</button>
