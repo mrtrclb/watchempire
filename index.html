@@ -5895,7 +5895,9 @@ function saveSettings() {
 // RESET
 // ══════════════════════════════
 function fillResetSummary() {
-  const inGame = Game.models && Game.models.length > 0;
+  // Oyun gerçekten başladıysa istatistikler gösterilsin — sadece model üretimine bağlı değil.
+  // Kullanıcı vintage al-sat yapmış veya banka/sertifika ile ilgilenmiş olabilir.
+  const inGame = !!Game.brand;
   const isTR   = Game.lang === 'tr';
 
   // Yeni popup ID'leri
@@ -5935,7 +5937,7 @@ function fillResetSummary() {
   set('rs-rep',         inGame ? formatNum(Game.reputation) : '—');
   set('rs-sales',       inGame ? formatNum(Game.totalSales) : '—');
   set('rs-fans',        inGame ? formatNum(Game.fans||0) : '—');
-  set('rs-models-count',inGame ? Game.models.filter(m=>m.status!=='archived').length : '—');
+  set('rs-models-count',inGame ? (Game.models||[]).filter(m=>m.status!=='archived').length : '—');
   set('rs-certs-count', inGame ? (Game.certifications||[]).filter(c=>c.status==='owned').length : '—');
 }
 
