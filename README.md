@@ -25,7 +25,7 @@
 - 👥 Çalışan sistemi — 6 rol, maaş ve enflasyon mekanikleri
 - 📜 8 sertifika — COSC, Swiss Made, ISO 9001 ve daha fazlası
 - 🏆 100 rakip firma, gerçek zamanlı piyasa sıralaması
-- 🤝 İşbirliği & Teklifler — her sezonda 3 rastgele teklif
+- 🤝 İşbirliği & Teklifler — her sezonda 5 rastgele teklif
 - 🕰️ Vintage Al-Sat — 36 kurgusal saat, trend bazlı fiyat sistemi
 - 🏦 Banka Kredisi — itibar bazlı limit, günlük faiz, manuel geri ödeme
 - 👥 Arkadaş Ligi — özel lig kodu, gerçek zamanlı rekabet
@@ -69,7 +69,7 @@ Oyunumuzda yer alan isimler hiçbir marka, kişi ya da kuruluşu temsil etmemekt
 - 👥 Staff system — 6 roles, salary and inflation mechanics
 - 📜 8 certifications — COSC, Swiss Made, ISO 9001 and more
 - 🏆 100 AI rivals, real-time market rankings
-- 🤝 Partnerships & Offers — 3 random offers per season
+- 🤝 Partnerships & Offers — 5 random offers per season
 - 🕰️ Vintage Market — 36 fictional watches, trend-based pricing, cross-season portfolio
 - 🏦 Bank Credit — reputation-based limit, daily interest, manual repayment
 - 👥 Friend League — create a league code, invite friends, compete together
